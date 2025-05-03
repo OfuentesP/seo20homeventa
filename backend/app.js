@@ -4,7 +4,7 @@ const path = require('path');
 const routesPath = path.resolve('./routes');
 console.log('[📦 Cargando rutas desde]', routesPath);
 
-const routes = require('./routes');
+const routes = require('./routes'); // Solo una vez
 
 const app = express();
 
@@ -12,9 +12,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Rutas API
-const routes = require('./routes');
-console.log('[DEBUG] Archivo de rutas cargado desde:', require.resolve('./routes'));
+// Monta las rutas bajo /api
+app.use('/api', routes);
 
 // Puerto
 const PORT = process.env.PORT || 3000;
