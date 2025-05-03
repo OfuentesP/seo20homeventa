@@ -32,22 +32,27 @@
             <div>
               <label class="block mb-1 font-medium" for="nombre">Nombre y Apellido</label>
               <input v-model="form.nombre" id="nombre" name="nombre" type="text" required autocomplete="name" placeholder="Ej: Juan Pérez" class="w-full border border-gray-300 rounded px-4 py-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition" />
+              <p v-if="errors.nombre" class="text-red-500 text-xs mt-1">{{ errors.nombre }}</p>
             </div>
             <div>
               <label class="block mb-1 font-medium" for="sitio">Sitio Web a Analizar</label>
               <input v-model="form.sitio" id="sitio" name="sitio" type="url" required autocomplete="url" placeholder="https://tusitio.com" class="w-full border border-gray-300 rounded px-4 py-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition" />
+              <p v-if="errors.sitio" class="text-red-500 text-xs mt-1">{{ errors.sitio }}</p>
             </div>
             <div>
               <label class="block mb-1 font-medium" for="empresa">Nombre de la Empresa <span class="text-gray-400">(opcional)</span></label>
               <input v-model="form.empresa" id="empresa" name="empresa" type="text" autocomplete="organization" placeholder="Ej: Mi Empresa S.A." class="w-full border border-gray-300 rounded px-4 py-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition" />
+              <p v-if="errors.empresa" class="text-red-500 text-xs mt-1">{{ errors.empresa }}</p>
             </div>
             <div>
               <label class="block mb-1 font-medium" for="cargo">Cargo en la Empresa <span class="text-gray-400">(opcional)</span></label>
               <input v-model="form.cargo" id="cargo" name="cargo" type="text" autocomplete="organization-title" placeholder="Ej: Gerente de Marketing" class="w-full border border-gray-300 rounded px-4 py-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition" />
+              <p v-if="errors.cargo" class="text-red-500 text-xs mt-1">{{ errors.cargo }}</p>
             </div>
             <div>
               <label class="block mb-1 font-medium" for="email">Correo electrónico</label>
               <input v-model="form.email" id="email" name="email" type="email" required autocomplete="email" placeholder="Ej: tu@email.com" class="w-full border border-gray-300 rounded px-4 py-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition" />
+              <p v-if="errors.email" class="text-red-500 text-xs mt-1">{{ errors.email }}</p>
             </div>
             <div class="text-center">
               <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 justify-center w-full mt-2 transition-all">
@@ -135,10 +140,109 @@ const form = ref({
   email: ''
 })
 
+const errors = ref({
+  nombre: '',
+  sitio: '',
+  email: '',
+  empresa: '',
+  cargo: ''
+})
+
+function contieneCodigo(str) {
+  // Detecta etiquetas HTML o JS simple
+  return /<[^>]+>|(script|onerror|onload|alert|function|\{|\}|\$\{|\`)/i.test(str);
+}
+
+function trimAllFields(obj) {
+  const out = {}
+  for (const k in obj) {
+    if (typeof obj[k] === 'string') out[k] = obj[k].trim();
+    else out[k] = obj[k];
+  }
+  return out;
+}
+
+function validarFormulario() {
+  let valido = true;
+  const trimmed = trimAllFields(form.value);
+
+  // Validar nombre
+  if (/https?:\/\//i.test(trimmed.nombre)) {
+    errors.value.nombre = 'El nombre no debe contener una URL.';
+    valido = false;
+  } else if (!trimmed.nombre) {
+    errors.value.nombre = 'El nombre es obligatorio.';
+    valido = false;
+  } else if (contieneCodigo(trimmed.nombre)) {
+    errors.value.nombre = 'No se permite código en el nombre.';
+    valido = false;
+  } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s.'-]{3,60}$/.test(trimmed.nombre)) {
+    errors.value.nombre = 'El nombre debe tener entre 3 y 60 letras y solo caracteres válidos.';
+    valido = false;
+  } else {
+    errors.value.nombre = '';
+  }
+
+  // Validar sitio web
+  try {
+    const url = new URL(trimmed.sitio);
+    if (!/^https?:/.test(url.protocol)) {
+      errors.value.sitio = 'El sitio web debe comenzar con http:// o https://';
+      valido = false;
+    } else if (/localhost|127\.0\.0\.1|\d+\.\d+\.\d+\.\d+/.test(url.hostname)) {
+      errors.value.sitio = 'No se permiten sitios locales o IPs.';
+      valido = false;
+    } else if (!/\./.test(url.hostname)) {
+      errors.value.sitio = 'El dominio debe contener al menos un punto.';
+      valido = false;
+    } else if (contieneCodigo(trimmed.sitio)) {
+      errors.value.sitio = 'No se permite código en el sitio web.';
+      valido = false;
+    } else {
+      errors.value.sitio = '';
+    }
+  } catch {
+    errors.value.sitio = 'Ingresa una URL válida (ej: https://tusitio.com)';
+    valido = false;
+  }
+
+  // Validar email
+  if (!/^\S+@\S+\.\S+$/.test(trimmed.email)) {
+    errors.value.email = 'Ingresa un correo electrónico válido.';
+    valido = false;
+  } else if (trimmed.email.length > 100) {
+    errors.value.email = 'El correo no debe superar los 100 caracteres.';
+    valido = false;
+  } else if (contieneCodigo(trimmed.email)) {
+    errors.value.email = 'No se permite código en el correo.';
+    valido = false;
+  } else {
+    errors.value.email = '';
+  }
+
+  // Validar empresa (opcional)
+  if (trimmed.empresa && (trimmed.empresa.length > 60 || contieneCodigo(trimmed.empresa))) {
+    errors.value.empresa = 'Máx. 60 caracteres y sin código.';
+    valido = false;
+  } else {
+    errors.value.empresa = '';
+  }
+
+  // Validar cargo (opcional)
+  if (trimmed.cargo && (trimmed.cargo.length > 60 || contieneCodigo(trimmed.cargo))) {
+    errors.value.cargo = 'Máx. 60 caracteres y sin código.';
+    valido = false;
+  } else {
+    errors.value.cargo = '';
+  }
+
+  return valido;
+}
+
 function enviarFormulario() {
-  // ✅ Guarda datos en localStorage para que el checkout los use
-  localStorage.setItem('formulario-seo', JSON.stringify(form.value))
-  // ✅ Redirige al paso de resumen antes del pago
+  if (!validarFormulario()) return;
+  const trimmed = trimAllFields(form.value);
+  localStorage.setItem('formulario-seo', JSON.stringify(trimmed))
   router.push('/checkout')
 }
 </script>

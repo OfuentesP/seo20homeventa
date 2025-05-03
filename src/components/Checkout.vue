@@ -166,13 +166,8 @@ useHead({
             </div>
             <h2 class="text-lg font-bold mb-4">Selecciona tu método de pago</h2>
             <div class="flex flex-col sm:flex-row gap-4">
-              <button @click="iniciarPago"
-                class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-lg py-4 rounded-xl flex items-center gap-3 justify-center w-full transition">
-                <span class="text-2xl">🏦</span> Pagar con Webpay Plus
-              </button>
-              <button @click="iniciarPagoMercadoPago"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg py-4 rounded-xl flex items-center gap-3 justify-center w-full transition">
-                <span class="text-2xl">💳</span> Pagar con Mercado Pago
+              <button disabled class="bg-emerald-400 text-white font-semibold text-lg py-4 rounded-xl flex items-center gap-3 justify-center w-full transition opacity-60 cursor-not-allowed">
+                <span class="text-2xl">🏦</span> Webpay Plus <span class="ml-2 text-xs font-normal">(Pronto disponible)</span>
               </button>
             </div>
           </div>
