@@ -1,36 +1,38 @@
-console.log('[🧪 WebpayPlus]', typeof WebpayPlus.Transaction);
 const { WebpayPlus, IntegrationApiKeys, IntegrationCommerceCodes, Environment } = require('transbank-sdk');
 
-// ✅ Esta es la única que necesitas
+// ✅ Configuración correcta
 WebpayPlus.configureForIntegration(
-  IntegrationCommerceCodes.WEBPAY_PLUS, // comercio sandbox
-  IntegrationApiKeys.WEBPAY,            // api key sandbox
-  Environment.Integration               // ambiente de integración
+  IntegrationCommerceCodes.WEBPAY_PLUS,
+  IntegrationApiKeys.WEBPAY,
+  Environment.Integration
 );
 
+// 🔍 Ahora sí puedes hacer log
+console.log('[🧪 WebpayPlus]', typeof WebpayPlus.Transaction);
+
 exports.createTransaction = async (req, res) => {
-    try {
-      const buyOrder = 'orden-' + Math.floor(Math.random() * 1000000);
-      const sessionId = 'sesion-' + Math.floor(Math.random() * 1000000);
-      const amount = 10000;
-      const returnUrl = 'https://seo20.dev/confirmacion';
-  
-      const response = await new WebpayPlus.Transaction().create(
-        buyOrder,
-        sessionId,
-        amount,
-        returnUrl
-      );
-  
-      res.json({
-        token: response.token,
-        url: response.url
-      });
-    } catch (error) {
-      console.error('[❌ Webpay Create Error]', error);
-      res.status(500).json({ error: error.message });
-    }
-  };
+  try {
+    const buyOrder = 'orden-' + Math.floor(Math.random() * 1000000);
+    const sessionId = 'sesion-' + Math.floor(Math.random() * 1000000);
+    const amount = 10000;
+    const returnUrl = 'https://seo20.dev/confirmacion';
+
+    const response = await new WebpayPlus.Transaction().create(
+      buyOrder,
+      sessionId,
+      amount,
+      returnUrl
+    );
+
+    res.json({
+      token: response.token,
+      url: response.url
+    });
+  } catch (error) {
+    console.error('[❌ Webpay Create Error]', error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 exports.commitTransaction = async (req, res) => {
   try {
