@@ -12,27 +12,31 @@ onMounted(() => {
 
 async function iniciarPago() {
   try {
-    const res = await fetch('http://localhost:3000/api/webpay/create', {
+    const apiBase = import.meta.env.PROD
+      ? import.meta.env.VITE_API_BASE_URL
+      : 'http://localhost:3000';
+
+    const res = await fetch(`${apiBase}/api/webpay/create`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({})
-    })
+    });
 
     if (!res.ok) {
-      const errorText = await res.text()
-      throw new Error(`Error del servidor: ${res.status} - ${errorText}`)
+      const errorText = await res.text();
+      throw new Error(`Error del servidor: ${res.status} - ${errorText}`);
     }
 
-    const data = await res.json()
+    const data = await res.json();
 
     if (!data.url || !data.token) {
-      throw new Error('Datos de pago inválidos recibidos.')
+      throw new Error('Datos de pago inválidos recibidos.');
     }
 
-    window.location.href = `${data.url}?token_ws=${data.token}`
+    window.location.href = `${data.url}?token_ws=${data.token}`;
   } catch (err) {
-    console.error('[❌ Error al generar el pago]', err)
-    alert('Hubo un error al generar el pago. Revisa la consola para más detalles.')
+    console.error('[❌ Error al generar el pago]', err);
+    alert('Hubo un error al generar el pago. Revisa la consola para más detalles.');
   }
 }
 </script>
