@@ -1,5 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const routesPath = path.resolve('./routes');
+console.log('[📦 Cargando rutas desde]', routesPath);
+
 const routes = require('./routes');
 
 const app = express();
