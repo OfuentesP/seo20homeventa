@@ -19,7 +19,6 @@ exports.createFlowPayment = async (req, res) => {
   try {
     const { nombre, email, sitio } = req.body;
     const orderId = 'ORD-' + Date.now();
-    // Detecta entorno para URLs
     const isProd = process.env.NODE_ENV === 'production';
     const baseUrl = isProd ? 'https://seo10.dev' : 'http://localhost:3000';
     const params = {
@@ -33,12 +32,16 @@ exports.createFlowPayment = async (req, res) => {
       urlReturn: `${baseUrl}/confirmacion`
     };
     params.s = signParams(params, SECRET_KEY);
+    console.log('[Flow] Intentando crear pago con params:', params);
     const response = await axios.post(FLOW_API_URL, null, { params });
-    console.log('[Flow] Pago creado:', { orderId, email, url: response.data.url });
+    console.log('[Flow] Respuesta de Flow:', response.data);
     res.json({ ...response.data, orderId });
   } catch (err) {
-    console.error('[Flow Error]', err.response?.data || err.message);
-    res.status(500).json({ error: 'Error al crear pago con Flow' });
+    console.error('[Flow Error]', err.message);
+    if (err.response) {
+      console.error('[Flow Error Response]', err.response.data);
+    }
+    res.status(500).json({ error: 'Error al crear pago con Flow', detalle: err.message, flow: err.response?.data });
   }
 };
 
