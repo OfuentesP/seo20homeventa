@@ -1,3 +1,4 @@
+console.log('[🧪 WebpayPlus]', typeof WebpayPlus.Transaction);
 const { WebpayPlus, IntegrationApiKeys, IntegrationCommerceCodes, Environment } = require('transbank-sdk');
 
 // ✅ Esta es la única que necesitas
