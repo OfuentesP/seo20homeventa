@@ -10,6 +10,7 @@ app.use(express.json());
 
 // Rutas API
 app.use('/api', routes);
+console.log('[✅ Backend] Rutas montadas en /api');
 
 // Puerto
 const PORT = process.env.PORT || 3000;
