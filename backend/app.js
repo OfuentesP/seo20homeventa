@@ -13,7 +13,8 @@ app.use(cors());
 app.use(express.json());
 
 // Rutas API
-app.use('/api', routes);
+const routes = require('./routes');
+console.log('[DEBUG] Archivo de rutas cargado desde:', require.resolve('./routes'));
 
 // Puerto
 const PORT = process.env.PORT || 3000;
