@@ -55,7 +55,8 @@
     }
   
     try {
-      const res = await fetch('http://localhost:3000/api/webpay/commit', {
+      const apiBase = import.meta.env.PROD ? '' : 'http://localhost:3000';
+      const res = await fetch(`${apiBase}/api/webpay/commit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token_ws: token })
