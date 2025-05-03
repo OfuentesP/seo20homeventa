@@ -45,6 +45,10 @@
               <label class="block mb-1 font-medium" for="cargo">Cargo en la Empresa <span class="text-gray-400">(opcional)</span></label>
               <input v-model="form.cargo" id="cargo" name="cargo" type="text" autocomplete="organization-title" placeholder="Ej: Gerente de Marketing" class="w-full border border-gray-300 rounded px-4 py-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition" />
             </div>
+            <div>
+              <label class="block mb-1 font-medium" for="email">Correo electrónico</label>
+              <input v-model="form.email" id="email" name="email" type="email" required autocomplete="email" placeholder="Ej: tu@email.com" class="w-full border border-gray-300 rounded px-4 py-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition" />
+            </div>
             <div class="text-center">
               <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 justify-center w-full mt-2 transition-all">
                 <span>Enviar Solicitud</span>
@@ -127,7 +131,8 @@ const form = ref({
   nombre: '',
   sitio: '',
   empresa: '',
-  cargo: ''
+  cargo: '',
+  email: ''
 })
 
 function enviarFormulario() {
