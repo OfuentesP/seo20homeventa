@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const port = 3000;
+const webpayRoutes = require('./backend/routes');
 
 // Middleware para parsear JSON (para la API de Webpay)
 app.use(express.json());
@@ -18,6 +19,8 @@ app.get('/api/ping', (req, res) => {
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
+
+app.use('/api', webpayRoutes);
 
 app.listen(port, () => {
   console.log(`✅ Servidor corriendo en http://localhost:${port}`);
