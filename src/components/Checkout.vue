@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useHead } from '@vueuse/head'
 
 const datosFormulario = ref({})
+const loading = ref(false)
 
 onMounted(() => {
   const data = localStorage.getItem('formulario-seo')
@@ -63,6 +64,32 @@ async function iniciarPagoMercadoPago() {
   } catch (err) {
     console.error('[❌ Error al generar el pago con Mercado Pago]', err);
     alert('Hubo un error al generar el pago con Mercado Pago. Revisa la consola para más detalles.');
+  }
+}
+
+async function iniciarPagoFlow() {
+  loading.value = true;
+  try {
+    const apiBase = import.meta.env.PROD ? '' : 'http://localhost:3000';
+    const res = await fetch(`${apiBase}/api/flow/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre: datosFormulario.value.nombre,
+        email: datosFormulario.value.email,
+        sitio: datosFormulario.value.sitio
+      })
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Error al iniciar pago con Flow');
+    }
+  } catch (err) {
+    alert('Error al conectar con Flow');
+  } finally {
+    loading.value = false;
   }
 }
 
@@ -166,8 +193,11 @@ useHead({
             </div>
             <h2 class="text-lg font-bold mb-4">Selecciona tu método de pago</h2>
             <div class="flex flex-col sm:flex-row gap-4">
-              <button disabled class="bg-emerald-400 text-white font-semibold text-lg py-4 rounded-xl flex items-center gap-3 justify-center w-full transition opacity-60 cursor-not-allowed">
-                <span class="text-2xl">🏦</span> Webpay Plus <span class="ml-2 text-xs font-normal">(Pronto disponible)</span>
+              <button :disabled="loading" @click="iniciarPagoFlow" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-lg py-4 rounded-xl flex items-center justify-center w-full transition">
+                Pagar con Flow
+              </button>
+              <button disabled class="bg-emerald-400 text-white font-semibold text-lg py-4 rounded-xl flex items-center justify-center w-full transition opacity-60 cursor-not-allowed">
+                Webpay Plus <span class="ml-2 text-xs font-normal">(Próximamente)</span>
               </button>
             </div>
           </div>
