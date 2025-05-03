@@ -13,8 +13,8 @@ onMounted(() => {
 async function iniciarPago() {
   try {
     const apiBase = import.meta.env.PROD
-      ? import.meta.env.VITE_API_BASE_URL
-      : 'http://localhost:3000';
+    ? '' // En producción, usa el mismo dominio
+    : 'http://localhost:3000';
 
     const res = await fetch(`${apiBase}/api/webpay/create`, {
       method: 'POST',
