@@ -12,7 +12,10 @@ function signParams(params, secretKey) {
   keys.forEach(key => {
     toSign += key + params[key];
   });
-  return crypto.createHmac('sha256', secretKey).update(toSign).digest('hex');
+  const signature = crypto.createHmac('sha256', secretKey).update(toSign).digest('hex');
+  console.log('[Flow] String a firmar:', toSign);
+  console.log('[Flow] Firma generada:', signature);
+  return signature;
 }
 
 exports.createFlowPayment = async (req, res) => {
