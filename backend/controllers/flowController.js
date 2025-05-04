@@ -23,7 +23,7 @@ function signParams(params, secretKey) {
 
 exports.createFlowPayment = async (req, res) => {
   try {
-    const { nombre, email, sitio } = req.body;
+    const { nombre, email, sitio, empresa, cargo } = req.body;
     const orderId = 'ORD-' + Date.now();
     const isProd = process.env.NODE_ENV === 'production';
     const baseUrl = isProd ? 'https://seo20.dev' : 'http://localhost:3000';
@@ -58,6 +58,24 @@ exports.createFlowPayment = async (req, res) => {
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
     console.log('[Flow] Respuesta de Flow:', response.data);
+
+    // Guarda los datos del formulario en Firestore junto con la orden
+    try {
+      const db = getFirestore();
+      await db.collection('solicitudes').doc(orderId).set({
+        nombre: nombre || '',
+        empresa: empresa || '',
+        sitio: sitio || '',
+        cargo: cargo || '',
+        email: emailLimpio || '',
+        estado: 'pendiente',
+        fecha: FieldValue.serverTimestamp()
+      }, { merge: true });
+      console.log('[Flow][Create] Guardado inicial de formulario en Firestore:', orderId);
+    } catch (e) {
+      console.error('[Flow][Create][Firestore Error]', e);
+    }
+
     res.json({ ...response.data, orderId });
   } catch (err) {
     console.error('[Flow Error]', err.message);
