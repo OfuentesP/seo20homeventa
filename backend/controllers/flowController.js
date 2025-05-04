@@ -68,9 +68,27 @@ exports.createFlowPayment = async (req, res) => {
 
 exports.confirmFlowPayment = async (req, res) => {
   try {
-    // Acepta el token desde body, body plano o query
-    const token = req.body.token || req.body?.token_ws || req.body?.TBK_TOKEN || req.body || req.query.token || req.query.token_ws || req.query.TBK_TOKEN;
-    if (!token || typeof token !== 'string') return res.status(400).send('Falta token');
+    console.log('[Flow Confirm] req.query:', req.query);
+    console.log('[Flow Confirm] req.body:', req.body);
+
+    // Extrae el token de todos los posibles lugares y formatos
+    const token =
+      req.query.token ||
+      req.query.token_ws ||
+      req.query.TBK_TOKEN ||
+      req.body.token ||
+      req.body.token_ws ||
+      req.body.TBK_TOKEN ||
+      (typeof req.body === 'string' ? req.body : undefined) ||
+      (typeof req.body === 'object' && Object.keys(req.body).length === 1
+        ? req.body[Object.keys(req.body)[0]]
+        : undefined);
+
+    if (!token) {
+      console.error('[Flow Confirm Error] Token no encontrado');
+      return res.status(400).send('Token no válido');
+    }
+
     const params = {
       apiKey: API_KEY,
       token
@@ -81,7 +99,7 @@ exports.confirmFlowPayment = async (req, res) => {
     // Aquí puedes guardar el estado del pago en tu base de datos o Firestore
     res.send('OK');
   } catch (err) {
-    console.error('[Flow Confirm Error]', err.response?.data || err.message);
+    console.error('[Flow Confirm Error]', err);
     res.status(500).send('Error confirmando pago');
   }
 };
