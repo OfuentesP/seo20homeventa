@@ -65,12 +65,12 @@
       </div>
     </main>
     <footer class="bg-gray-100 text-center text-sm text-gray-600 min-h-[160px] h-[160px] flex flex-col justify-center pt-12">
-      <p>&copy; 2025 SEO10.dev — Todos los derechos reservados.</p>
+      <p>&copy; 2025 SEO20.dev — Todos los derechos reservados.</p>
       <nav class="mt-2 space-x-4">
         <router-link to="/politica-privacidad" class="hover:text-emerald-600">Política de Privacidad</router-link>
         <router-link to="/terminos-servicio" class="hover:text-emerald-600">Términos de Servicio</router-link>
       </nav>
-      <p class="mt-2">Contacto: <a href="mailto:hola@seo10.dev" class="text-emerald-600 hover:underline">hola@seo10.dev</a></p>
+      <p class="mt-2">Contacto: <a href="mailto:hola@seo20.dev" class="text-emerald-600 hover:underline">hola@seo20.dev</a></p>
     </footer>
   </div>
 </template>
@@ -81,23 +81,23 @@ import { useRouter } from 'vue-router'
 import { useHead } from '@vueuse/head'
 
 const router = useRouter()
-const baseUrl = 'https://seo10.dev';
+const baseUrl = 'https://seo20.dev';
 const canonicalUrl = `${baseUrl}/solicitud`;
 
 useHead({
-  title: 'Solicita tu Informe SEO Técnico | SEO10.dev',
+  title: 'Solicita tu Informe SEO Técnico | SEO20.dev',
   meta: [
     { name: 'robots', content: 'index,follow' },
     { name: 'description', content: 'Solicita tu informe SEO técnico y recibe en 24h un diagnóstico claro, accionable y sin tecnicismos de tu página de inicio.' },
     { name: 'keywords', content: 'solicitud informe SEO, análisis SEO, diagnóstico web, optimización SEO, informe técnico, SEO para empresas' },
-    { property: 'og:title', content: 'Solicita tu Informe SEO Técnico | SEO10.dev' },
+    { property: 'og:title', content: 'Solicita tu Informe SEO Técnico | SEO20.dev' },
     { property: 'og:description', content: 'Solicita tu informe SEO técnico y recibe en 24h un diagnóstico claro, accionable y sin tecnicismos de tu página de inicio.' },
     { property: 'og:image', content: `${baseUrl}/images/og-auditoria-seo-10.jpg` },
     { property: 'og:type', content: 'website' },
     { property: 'og:url', content: canonicalUrl },
-    { property: 'og:site_name', content: 'SEO10.dev' },
+    { property: 'og:site_name', content: 'SEO20.dev' },
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'Solicita tu Informe SEO Técnico | SEO10.dev' },
+    { name: 'twitter:title', content: 'Solicita tu Informe SEO Técnico | SEO20.dev' },
     { name: 'twitter:description', content: 'Solicita tu informe SEO técnico y recibe en 24h un diagnóstico claro, accionable y sin tecnicismos de tu página de inicio.' },
     { name: 'twitter:image', content: `${baseUrl}/images/twitter-auditoria-seo-10.jpg` },
   ],
@@ -115,7 +115,7 @@ useHead({
         "serviceType": "Informe SEO Técnico",
         "provider": {
           "@type": "Organization",
-          "name": "SEO10.dev",
+          "name": "SEO20.dev",
           "url": baseUrl
         },
         "areaServed": "ES",

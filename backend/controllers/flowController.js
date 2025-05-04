@@ -24,14 +24,18 @@ exports.createFlowPayment = async (req, res) => {
     const { nombre, email, sitio } = req.body;
     const orderId = 'ORD-' + Date.now();
     const isProd = process.env.NODE_ENV === 'production';
-    const baseUrl = isProd ? 'https://seo10.dev' : 'http://localhost:3000';
+    const baseUrl = isProd ? 'https://seo20.dev' : 'http://localhost:3000';
+    // Limpia el email y loguea tipo y valor
+    const emailLimpio = (email || '').trim();
+    console.log('[Flow][DEBUG] Email recibido:', email, '| Email limpio:', emailLimpio, '| Tipo:', typeof emailLimpio);
+    console.log('[Flow][DEBUG] Entorno NODE_ENV:', process.env.NODE_ENV);
     const params = {
       apiKey: API_KEY,
       commerceOrder: orderId,
       subject: 'Informe SEO Técnico',
       currency: 'CLP',
       amount: 20000,
-      email: email,
+      email: emailLimpio,
       urlConfirmation: `${baseUrl}/api/flow/confirm`,
       urlReturn: `${baseUrl}/confirmacion`
     };

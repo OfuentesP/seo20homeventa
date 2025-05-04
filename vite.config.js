@@ -16,8 +16,8 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,gif,webp,woff,woff2,ttf,eot}']
       },
       manifest: {
-        name: 'SEO10.dev',
-        short_name: 'SEO10',
+        name: 'SEO20.dev',
+        short_name: 'SEO20',
         description: 'Informe SEO Técnico de tu Home por $10 USD',
         theme_color: '#10b981',
         icons: [

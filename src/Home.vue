@@ -23,12 +23,12 @@
   </main>
 
   <footer class="bg-gray-100 text-center text-sm text-gray-600 min-h-[160px] h-[160px] flex flex-col justify-center">
-    <p>&copy; 2025 SEO10.dev — Todos los derechos reservados.</p>
+    <p>&copy; 2025 SEO20.dev — Todos los derechos reservados.</p>
     <nav class="mt-2 space-x-4">
       <router-link to="/politica-privacidad" class="hover:text-emerald-600">Política de Privacidad</router-link>
       <router-link to="/terminos-servicio" class="hover:text-emerald-600">Términos de Servicio</router-link>
     </nav>
-    <p class="mt-2">Contacto: <a href="mailto:hola@seo10.dev" class="text-emerald-600 hover:underline">hola@seo10.dev</a></p>
+    <p class="mt-2">Contacto: <a href="mailto:hola@seo20.dev" class="text-emerald-600 hover:underline">hola@seo20.dev</a></p>
   </footer>
 </template>
 
@@ -44,12 +44,12 @@ const navRoutes = router.options.routes.filter(
 
 // Define la URL base de tu sitio para las imágenes y URLs canónicas
 // ¡Asegúrate de que esta sea la URL correcta en producción!
-const baseUrl = 'https://seo10.dev';
+const baseUrl = 'https://seo20.dev';
 const canonicalUrl = `${baseUrl}/`; // Asume que esta es la URL de esta página
 
 useHead({
   // Título optimizado para SEO y atractivo para el usuario
-  title: 'Informe SEO de tu Home por $20 USD | SEO10.dev',
+  title: 'Informe SEO de tu Home por $20 USD | SEO20.dev',
 
   // Meta tags esenciales para SEO y redes sociales
   meta: [
@@ -58,16 +58,16 @@ useHead({
     // Keywords tiene bajo impacto en Google, pero puede servir para otros motores o contexto interno
     { name: 'keywords', content: 'auditoría SEO, análisis SEO técnico, informe SEO, diagnóstico web, SEO barato, optimización web, Core Web Vitals, velocidad web, SEO para pymes, informe SEO $10' },
     // Open Graph (para Facebook, LinkedIn, etc.)
-    { property: 'og:title', content: 'Informe SEO de tu Home por $10 USD | SEO10.dev' },
+    { property: 'og:title', content: 'Informe SEO de tu Home por $10 USD | SEO20.dev' },
     { property: 'og:description', content: 'Recibe en 24 h un análisis SEO técnico de tu página principal con velocidad, Core Web Vitals y metadatos. Informe PDF claro y accionable por solo $10 USD.' },
     // IMPORTANTE: Reemplaza con la URL de una imagen real optimizada para OG (1200x630px recomendado)
     { property: 'og:image', content: `${baseUrl}/images/og-auditoria-seo-10.jpg` },
     { property: 'og:type', content: 'product' }, // 'product' o 'website'/'service' son apropiados
     { property: 'og:url', content: canonicalUrl }, // URL Canónica de esta página
-    { property: 'og:site_name', content: 'SEO10.dev' }, // Nombre del sitio
+    { property: 'og:site_name', content: 'SEO20.dev' }, // Nombre del sitio
     // Twitter Cards
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'Informe SEO de tu Home por $10 USD | SEO10.dev' },
+    { name: 'twitter:title', content: 'Informe SEO de tu Home por $10 USD | SEO20.dev' },
     { name: 'twitter:description', content: 'Recibe en 24 h un análisis SEO técnico de tu página principal con velocidad, Core Web Vitals y metadatos. Informe PDF claro y accionable por solo $10 USD.' },
     // IMPORTANTE: Reemplaza con la URL de una imagen real optimizada para Twitter (puede ser la misma que OG)
     { name: 'twitter:image', content: `${baseUrl}/images/twitter-auditoria-seo-10.jpg` },
@@ -97,7 +97,7 @@ useHead({
         "mpn": "SEO10AUDIT01", // Manufacturer Part Number (si aplica, opcional)
         "brand": {
           "@type": "Organization", // O "Brand"
-          "name": "SEO10.dev",
+          "name": "SEO20.dev",
           "url": baseUrl
         },
         "offers": {
@@ -172,7 +172,7 @@ useHead({
             "name": "¿Qué debo hacer si no recibo mi informe SEO en el tiempo indicado?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Por favor, revisa tu carpeta de spam. Si no está allí, contáctanos de inmediato a través de nuestro correo electrónico hola@seo10.dev y nuestro equipo se encargará de solucionar el problema a la brevedad."
+              "text": "Por favor, revisa tu carpeta de spam. Si no está allí, contáctanos de inmediato a través de nuestro correo electrónico hola@seo20.dev y nuestro equipo se encargará de solucionar el problema a la brevedad."
             }
           }
         ]

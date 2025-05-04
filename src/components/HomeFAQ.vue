@@ -36,7 +36,7 @@
             ¿Qué debo hacer si no recibo mi informe SEO en el tiempo indicado?
             <span class="ml-2 transform transition-transform duration-200 group-open:rotate-180">▼</span>
           </summary>
-          <p class="mt-2">Por favor, contáctanos de inmediato a través de nuestro correo electrónico <a href="mailto:hola@seo10.dev" class="text-emerald-600 font-semibold hover:underline">hola@seo10.dev</a> y nuestro equipo se encargará de solucionar el problema a la brevedad.</p>
+          <p class="mt-2">Por favor, contáctanos de inmediato a través de nuestro correo electrónico <a href="mailto:hola@seo20.dev" class="text-emerald-600 font-semibold hover:underline">hola@seo20.dev</a> y nuestro equipo se encargará de solucionar el problema a la brevedad.</p>
         </details>
       </div>
     </div>

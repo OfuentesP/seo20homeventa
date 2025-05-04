@@ -95,22 +95,22 @@ async function iniciarPagoFlow() {
   }
 }
 
-const baseUrl = 'https://seo10.dev';
+const baseUrl = 'https://seo20.dev';
 const canonicalUrl = `${baseUrl}/checkout`;
 
 useHead({
-  title: 'Resumen y Pago de tu Informe SEO Técnico | SEO10.dev',
+  title: 'Resumen y Pago de tu Informe SEO Técnico | SEO20.dev',
   meta: [
     { name: 'robots', content: 'noindex,follow' },
     { name: 'description', content: 'Revisa y paga tu informe SEO técnico. Pago seguro con Webpay Plus o Mercado Pago. Recibe tu informe en menos de 24h.' },
-    { property: 'og:title', content: 'Resumen y Pago de tu Informe SEO Técnico | SEO10.dev' },
+    { property: 'og:title', content: 'Resumen y Pago de tu Informe SEO Técnico | SEO20.dev' },
     { property: 'og:description', content: 'Revisa y paga tu informe SEO técnico. Pago seguro con Webpay Plus o Mercado Pago. Recibe tu informe en menos de 24h.' },
     { property: 'og:image', content: `${baseUrl}/images/og-auditoria-seo-10.jpg` },
     { property: 'og:type', content: 'website' },
     { property: 'og:url', content: canonicalUrl },
-    { property: 'og:site_name', content: 'SEO10.dev' },
+    { property: 'og:site_name', content: 'SEO20.dev' },
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'Resumen y Pago de tu Informe SEO Técnico | SEO10.dev' },
+    { name: 'twitter:title', content: 'Resumen y Pago de tu Informe SEO Técnico | SEO20.dev' },
     { name: 'twitter:description', content: 'Revisa y paga tu informe SEO técnico. Pago seguro con Webpay Plus o Mercado Pago. Recibe tu informe en menos de 24h.' },
     { name: 'twitter:image', content: `${baseUrl}/images/twitter-auditoria-seo-10.jpg` },
   ],
@@ -133,7 +133,7 @@ useHead({
         ],
         "provider": {
           "@type": "Organization",
-          "name": "SEO10.dev",
+          "name": "SEO20.dev",
           "url": baseUrl
         },
         "url": canonicalUrl
@@ -184,7 +184,7 @@ useHead({
           <div class="mb-8">
             <h2 class="text-xl font-semibold mb-2 text-emerald-700">¿Dudas antes de pagar?</h2>
             <p class="text-gray-700 mb-1">Si tienes preguntas sobre el informe, puedes escribirnos antes de completar el pago.</p>
-            <p class="font-semibold text-emerald-700 flex items-center gap-2"><span class="text-2xl">📧</span> contacto@seo10.dev</p>
+            <p class="font-semibold text-emerald-700 flex items-center gap-2"><span class="text-2xl">📧</span> contacto@seo20.dev</p>
           </div>
           <div class="mb-8">
             <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center text-emerald-800 text-base font-medium mb-4">
@@ -207,12 +207,12 @@ useHead({
       </div>
     </main>
     <footer class="bg-gray-100 text-center text-sm text-gray-600 min-h-[160px] h-[160px] flex flex-col justify-center pt-12">
-      <p>&copy; 2025 SEO10.dev — Todos los derechos reservados.</p>
+      <p>&copy; 2025 SEO20.dev — Todos los derechos reservados.</p>
       <nav class="mt-2 space-x-4">
         <router-link to="/politica-privacidad" class="hover:text-emerald-600">Política de Privacidad</router-link>
         <router-link to="/terminos-servicio" class="hover:text-emerald-600">Términos de Servicio</router-link>
       </nav>
-      <p class="mt-2">Contacto: <a href="mailto:hola@seo10.dev" class="text-emerald-600 hover:underline">hola@seo10.dev</a></p>
+      <p class="mt-2">Contacto: <a href="mailto:hola@seo20.dev" class="text-emerald-600 hover:underline">hola@seo20.dev</a></p>
     </footer>
   </div>
 </template>
