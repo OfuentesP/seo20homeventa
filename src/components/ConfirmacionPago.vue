@@ -40,7 +40,7 @@
         </div>
     
         <div v-else-if="estado === 'error'" class="text-red-600 mt-10">
-          <p class="text-xl font-semibold mb-2">❌ Error al procesar el pago</p>
+          <p class="text-xl font-semibold mb-2">❌ Error al procesar el pago 1.0</p>
           <p>{{ resultado.mensaje }}</p>
         </div>
     
@@ -136,10 +136,28 @@
 
       try {
         const apiBase = import.meta.env.PROD ? '' : 'http://localhost:3000'
+        // Log para depuración de los datos enviados
+        console.log('[Flow][Front] Enviando a backend:', {
+          token: tbk_token,
+          buyOrder,
+          nombre: form.nombre,
+          empresa: form.empresa,
+          sitio: form.sitio,
+          cargo: form.cargo,
+          email: form.email
+        });
         const res = await fetch(`${apiBase}/api/flow/status`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: tbk_token, buyOrder, ...form })
+          body: JSON.stringify({
+            token: tbk_token,
+            buyOrder,
+            nombre: form.nombre,
+            empresa: form.empresa,
+            sitio: form.sitio,
+            cargo: form.cargo,
+            email: form.email
+          })
         })
 
         console.log('[Flow][DEBUG] res.status:', res.status)
