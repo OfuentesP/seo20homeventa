@@ -81,6 +81,9 @@ async function iniciarPagoFlow() {
       })
     });
     const data = await res.json();
+    if (data.orderId) {
+      localStorage.setItem('flow-order-id', data.orderId);
+    }
     if (data.url && data.token) {
       window.location.href = `${data.url}?token=${data.token}`;
     } else if (data.url) {

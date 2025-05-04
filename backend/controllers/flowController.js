@@ -34,7 +34,7 @@ exports.createFlowPayment = async (req, res) => {
       commerceOrder: orderId,
       subject: 'Informe SEO Técnico',
       currency: 'CLP',
-      amount: 20000,
+      amount: 1000,
       email: emailLimpio,
       urlConfirmation: `${baseUrl}/api/flow/confirm`,
       urlReturn: `${baseUrl}/confirmacion`
@@ -68,8 +68,9 @@ exports.createFlowPayment = async (req, res) => {
 
 exports.confirmFlowPayment = async (req, res) => {
   try {
-    const { token } = req.body;
-    if (!token) return res.status(400).send('Falta token');
+    // Acepta el token desde body, body plano o query
+    const token = req.body.token || req.body?.token_ws || req.body?.TBK_TOKEN || req.body || req.query.token || req.query.token_ws || req.query.TBK_TOKEN;
+    if (!token || typeof token !== 'string') return res.status(400).send('Falta token');
     const params = {
       apiKey: API_KEY,
       token

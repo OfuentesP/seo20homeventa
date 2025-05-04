@@ -93,7 +93,10 @@
     const params = new URLSearchParams(window.location.search)
     const token_ws = params.get('token_ws')
     const tbk_token = params.get('TBK_TOKEN')
-    const buyOrder = params.get('TBK_ORDEN_COMPRA') || params.get('buy_order')
+    let buyOrder = params.get('TBK_ORDEN_COMPRA') || params.get('buy_order')
+    if (!buyOrder && tbk_token) {
+      buyOrder = localStorage.getItem('flow-order-id')
+    }
 
     if (token_ws) {
       // Pago exitoso: consulta y muestra resultado
