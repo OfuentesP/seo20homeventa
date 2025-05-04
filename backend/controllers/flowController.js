@@ -15,10 +15,17 @@ function signParams(params, secretKey) {
   keys.forEach(key => {
     toSign += key + params[key];
   });
-  console.log('[Flow] String a firmar:', toSign);
   const signature = crypto.createHmac('sha256', secretKey).update(toSign).digest('hex');
-  console.log('[Flow] Firma generada:', signature);
   return signature;
+}
+
+function getEstadoFromStatus(status) {
+  switch (Number(status)) {
+    case 2: return 'exito';
+    case 3: return 'rechazado';
+    case 4: return 'anulado';
+    default: return 'error';
+  }
 }
 
 exports.createFlowPayment = async (req, res) => {
@@ -27,10 +34,9 @@ exports.createFlowPayment = async (req, res) => {
     const orderId = 'ORD-' + Date.now();
     const isProd = process.env.NODE_ENV === 'production';
     const baseUrl = isProd ? 'https://seo20.dev' : 'http://localhost:3000';
-    // Limpia el email y loguea tipo y valor
+
     const emailLimpio = (email || '').trim();
-    console.log('[Flow][DEBUG] Email recibido:', email, '| Email limpio:', emailLimpio, '| Tipo:', typeof emailLimpio);
-    console.log('[Flow][DEBUG] Entorno NODE_ENV:', process.env.NODE_ENV);
+
     const params = {
       apiKey: API_KEY,
       commerceOrder: orderId,
@@ -42,24 +48,13 @@ exports.createFlowPayment = async (req, res) => {
       urlReturn: `${baseUrl}/confirmacion`
     };
     params.s = signParams(params, SECRET_KEY);
-    // Log detallado de los parámetros
-    Object.entries(params).forEach(([k, v]) => {
-      console.log(`[Flow][param] ${k}:`, v);
-    });
-    // Validación rápida
-    const missing = Object.entries(params).filter(([k, v]) => v === undefined || v === null || v === '').map(([k]) => k);
-    if (missing.length) {
-      console.error('[Flow][ERROR] Faltan parámetros:', missing);
-    }
-    console.log('[Flow] Intentando crear pago con params:', params);
+
     const response = await axios.post(
       FLOW_API_URL,
       qs.stringify(params),
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
-    console.log('[Flow] Respuesta de Flow:', response.data);
 
-    // Guarda los datos del formulario en Firestore como pendiente
     try {
       const db = getFirestore();
       await db.collection('solicitudes').doc(orderId + '-pendiente').set({
@@ -71,17 +66,13 @@ exports.createFlowPayment = async (req, res) => {
         estado: 'pendiente',
         fecha: FieldValue.serverTimestamp()
       }, { merge: true });
-      console.log('[Flow][Create] Guardado inicial de formulario en Firestore (pendiente):', orderId + '-pendiente');
     } catch (e) {
-      console.error('[Flow][Create][Firestore Error]', e);
+      console.error('[Firestore Error - Guardado Pendiente]', e);
     }
 
     res.json({ ...response.data, orderId });
   } catch (err) {
     console.error('[Flow Error]', err.message);
-    if (err.response) {
-      console.error('[Flow Error Response]', err.response.data);
-    }
     res.status(500).json({ error: 'Error al crear pago con Flow', detalle: err.message, flow: err.response?.data });
   }
 };
@@ -89,10 +80,6 @@ exports.createFlowPayment = async (req, res) => {
 exports.confirmFlowPayment = async (req, res) => {
   let flowResponse = null;
   try {
-    console.log('[Flow Confirm] req.query:', req.query);
-    console.log('[Flow Confirm] req.body:', req.body);
-
-    // Extrae el token de todos los posibles lugares y formatos
     const token =
       req.query.token ||
       req.query.token_ws ||
@@ -106,29 +93,25 @@ exports.confirmFlowPayment = async (req, res) => {
         : undefined);
 
     if (!token) {
-      console.error('[Flow Confirm Error] Token no encontrado');
       return res.status(400).json({ error: 'Token no válido' });
     }
 
-    const params = {
-      apiKey: API_KEY,
-      token
-    };
+    const params = { apiKey: API_KEY, token };
     params.s = signParams(params, SECRET_KEY);
+
     const response = await axios.get(FLOW_STATUS_URL, { params });
     flowResponse = response.data;
-    console.log('[Flow Confirm] Estado recibido:', flowResponse);
 
-    // Guarda en Firestore como exito/rechazado/anulado/otro (no sobrescribe el pendiente)
+    const statusStr = getEstadoFromStatus(flowResponse.status);
+
     if (flowResponse.commerceOrder) {
       try {
         const db = getFirestore();
-        const statusStr = flowResponse.status === 2 ? 'exito'
-          : flowResponse.status === 3 ? 'rechazado'
-          : flowResponse.status === 4 ? 'anulado'
-          : 'otro';
-        const ref = db.collection('solicitudes').doc(flowResponse.commerceOrder + '-' + statusStr);
-        await ref.set({
+        const pendienteDoc = await db.collection('solicitudes').doc(`${flowResponse.commerceOrder}-pendiente`).get();
+        const datosForm = pendienteDoc.exists ? pendienteDoc.data() : {};
+
+        await db.collection('solicitudes').doc(flowResponse.commerceOrder + '-' + statusStr).set({
+          ...datosForm,
           tipo: 'Flow',
           estado: statusStr,
           amount: flowResponse.amount,
@@ -136,13 +119,12 @@ exports.confirmFlowPayment = async (req, res) => {
           commerceOrder: flowResponse.commerceOrder,
           fecha: FieldValue.serverTimestamp()
         }, { merge: true });
-        console.log('[Flow Confirm] Guardado en Firestore:', flowResponse.commerceOrder + '-' + statusStr);
       } catch (e) {
-        console.error('[Flow Confirm][Firestore Error]', e);
-        // NO lanzar error, solo loguear
+        console.error('[Firestore Error - Confirmación]', e);
       }
     }
 
+    flowResponse.estado = statusStr;
     res.json(flowResponse);
   } catch (err) {
     console.error('[Flow Confirm Error]', err);
@@ -153,47 +135,40 @@ exports.confirmFlowPayment = async (req, res) => {
   }
 };
 
-// Endpoint para consultar el estado de una transacción en Flow
 exports.getFlowStatus = async (req, res) => {
   try {
     const { token, buyOrder, nombre, empresa, sitio, cargo, email } = req.body;
-    console.log('[Flow][Status] Consultando estado para token:', token, 'buyOrder:', buyOrder);
     if (!token) return res.status(400).json({ error: 'Falta token' });
-    const params = {
-      apiKey: API_KEY,
-      token
-    };
+
+    const params = { apiKey: API_KEY, token };
     params.s = signParams(params, SECRET_KEY);
+
     const response = await axios.get(FLOW_STATUS_URL, { params });
-    console.log('[Flow][Status] Respuesta de Flow:', response.data);
-    // Si el estado es anulado/cancelado o rechazado, guarda en la base de datos
+    let responseData = { ...response.data, buyOrder };
+
+    if (typeof responseData.status !== 'undefined') {
+      responseData.status = Number(responseData.status);
+      responseData.estado = getEstadoFromStatus(responseData.status);
+    }
+
     if (buyOrder && (nombre || empresa || sitio || cargo || email)) {
       try {
         const db = getFirestore();
-        const ref = db.collection('solicitudes').doc(buyOrder);
-        await ref.set({
+        await db.collection('solicitudes').doc(buyOrder).set({
           nombre: nombre || '',
           empresa: empresa || '',
           sitio: sitio || '',
-          cargo: req.body.cargo || '',
-          email: req.body.email || ''
+          cargo: cargo || '',
+          email: email || ''
         }, { merge: true });
-        console.log('[Flow][Status] Actualizados datos de formulario en Firestore:', buyOrder);
       } catch (e) {
-        console.error('[❌ Error actualizando datos de formulario en Firestore]', e);
+        console.error('[Firestore Error - Status Update]', e);
       }
     }
-    // Antes de responder, fuerza status a número si existe
-    let responseData = { ...response.data, buyOrder };
-    if (typeof responseData.status !== 'undefined') {
-      responseData.status = Number(responseData.status);
-    }
-    res.json(responseData); // Incluye el buyOrder en la respuesta
+
+    res.json(responseData);
   } catch (err) {
-    console.error('[Flow][Status] Error:', err.message);
-    if (err.response) {
-      console.error('[Flow][Status] Error Response:', err.response.data);
-    }
+    console.error('[Flow Status Error]', err.message);
     res.status(500).json({ error: 'Error consultando estado en Flow', detalle: err.message });
   }
-}; 
+};
