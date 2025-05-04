@@ -1,166 +1,117 @@
 <template>
   <div class="max-w-2xl mx-auto py-20 px-6 text-center">
-    <h1 class="text-3xl font-bold mb-4" v-if="pagoExitoso">
+    <h1 class="text-3xl font-bold mb-4" v-if="estado === 'exito'">
       <span role="img" aria-label="pago confirmado">✅</span> ¡Pago confirmado con Flow!
     </h1>
+    <h1 class="text-3xl font-bold mb-4" v-else-if="estado === 'rechazado'">
+      <span role="img" aria-label="pago no confirmado">❌</span> Pago rechazado o no autorizado
+    </h1>
+    <h1 class="text-3xl font-bold mb-4" v-else-if="estado === 'anulado'">
+      <span role="img" aria-label="pago anulado">⚠️</span> Pago cancelado o anulado
+    </h1>
+    <h1 class="text-3xl font-bold mb-4" v-else-if="estado === 'esperando'">
+      <span role="img" aria-label="esperando confirmacion">⏳</span> Esperando confirmación de pago...
+    </h1>
     <h1 class="text-3xl font-bold mb-4" v-else>
-      <span role="img" aria-label="pago no confirmado">❌</span> Estado: {{ resultado?.status ?? 'desconocido' }}
+      <span role="img" aria-label="error">❌</span> Error al consultar el estado del pago
     </h1>
 
-    <p v-if="pagoExitoso">
+    <p v-if="estado === 'exito'">
       Gracias por tu compra. Te enviaremos el informe SEO en menos de 24 horas hábiles.
     </p>
+    <p v-else-if="estado === 'rechazado'">
+      Tu pago no pudo ser confirmado. Estado recibido: <strong>{{ resultado?.estado ?? 'desconocido' }}</strong>
+    </p>
+    <p v-else-if="estado === 'anulado'">
+      El pago fue cancelado o anulado. Si tienes dudas, contáctanos.
+    </p>
+    <p v-else-if="estado === 'esperando'">
+      Estamos esperando la confirmación de tu pago. Puedes recargar esta página en unos segundos.
+    </p>
     <p v-else>
-      Tu pago no pudo ser confirmado. Estado recibido: {{ resultado?.status ?? 'desconocido' }}
+      {{ resultado?.mensaje || 'Ocurrió un error inesperado.' }}
     </p>
 
-    <div v-if="pagoExitoso" class="mt-10 text-left text-sm bg-gray-50 rounded p-6 shadow">
+    <div v-if="estado === 'exito'" class="mt-10 text-left text-sm bg-gray-50 rounded p-6 shadow">
       <h2 class="text-lg font-semibold mb-2">Detalles de la transacción</h2>
-      <p><strong>Orden de compra:</strong> {{ resultado.commerceOrder || 'No disponible' }}</p>
-      <p><strong>Monto pagado:</strong> ${{ resultado.amount || 'No disponible' }}</p>
-      <p v-if="resultado?.payer"><strong>Pagador:</strong> {{ resultado.payer }}</p>
+      <p><strong>Orden de compra:</strong> {{ resultado?.orden || resultado?.buyOrder || 'No disponible' }}</p>
+      <p><strong>Monto pagado:</strong> ${{ resultado?.detalles_pago?.amount || resultado?.amount || 'No disponible' }}</p>
+      <p v-if="resultado?.email"><strong>Pagador:</strong> {{ resultado.email }}</p>
     </div>
 
-    <div v-if="estado === 'cargando'" class="text-gray-500 mt-10">
-      Procesando tu pago... ⏳
-    </div>
-    <div v-else-if="estado === 'rechazado'" class="text-yellow-600 mt-10">
-      <p class="text-xl font-semibold mb-2">⚠️ Pago rechazado o no autorizado.</p>
-      <p>Estado entregado por el medio de pago: <strong>{{ resultado?.status ?? 'desconocido' }}</strong></p>
-    </div>
-    <div v-else-if="estado === 'error'" class="text-red-600 mt-10">
+    <div v-if="estado === 'error'" class="text-red-600 mt-10">
       <p class="text-xl font-semibold mb-2">❌ Error al procesar el pago</p>
       <p>{{ resultado?.mensaje || 'Error desconocido.' }}</p>
       <pre v-if="resultado">{{ JSON.stringify(resultado, null, 2) }}</pre>
-    </div>
-    <div v-else-if="estado === 'anulado'" class="text-yellow-600 mt-10">
-      <p class="text-xl font-semibold mb-2">⚠️ Pago cancelado o anulado</p>
-      <p>{{ resultado?.mensaje || 'Sin más detalles.' }}</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref } from 'vue'
 import { db } from '../firebase'
-import { collection, setDoc, doc, serverTimestamp } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 
 const estado = ref('cargando')
 const resultado = ref(null)
 
-const pagoExitoso = computed(() =>
-  estado.value === 'exito' ||
-  resultado.value?.status === 2 ||
-  resultado.value?.estado === 'exito'
-)
-
-async function guardarEnFirebase(buyOrder, pago, form = {}) {
-  try {
-    if (!buyOrder) return
-    if (localStorage.getItem('solicitud-guardada-' + buyOrder)) {
-      console.log(`[🟡 Ya guardado en Firebase] buyOrder: ${buyOrder}`)
-      return
-    }
-    const formData = Object.keys(form).length ? form : JSON.parse(localStorage.getItem('formulario-seo') || '{}')
-    console.log('[🔥 Intentando guardar en Firebase]', buyOrder, { ...formData, ...pago })
-    await setDoc(doc(collection(db, 'solicitudes'), buyOrder), {
-      nombre: formData.nombre || '',
-      sitio: formData.sitio || '',
-      empresa: formData.empresa || '',
-      cargo: formData.cargo || '',
-      email: formData.email || '',
-      tipo_pago: pago.tipo,
-      detalles_pago: pago.detalles,
-      estado: pago.estado || '',
-      fecha: serverTimestamp()
-    }, { merge: true })
-    localStorage.setItem('solicitud-guardada-' + buyOrder, '1')
-    console.log(`[✅ Guardado en Firebase] buyOrder: ${buyOrder}`)
-  } catch (e) {
-    console.error('[❌ Error guardando en Firebase]', e)
+async function consultarEstadoEnFirestore(buyOrder) {
+  if (!buyOrder) return null
+  const docRef = doc(db, 'solicitudes', buyOrder)
+  const docSnap = await getDoc(docRef)
+  if (docSnap.exists()) {
+    return docSnap.data()
+  } else {
+    return null
   }
 }
 
 onMounted(async () => {
+  console.log('[🚦 Confirmación] Iniciando consulta de estado de pago...')
   const params = new URLSearchParams(window.location.search)
-  let token = params.get('token') || params.get('TBK_TOKEN') || localStorage.getItem('flow-token')
   let buyOrder = params.get('buy_order') || params.get('TBK_ORDEN_COMPRA') || localStorage.getItem('flow-order-id')
-  const form = JSON.parse(localStorage.getItem('formulario-seo') || '{}')
+  console.log('[🔎 Confirmación] buyOrder detectado:', buyOrder)
+  console.log('[🔎 Confirmación] Parámetros URL:', Object.fromEntries(params.entries()))
 
-  if (token) localStorage.setItem('flow-token', token)
-  if (buyOrder) localStorage.setItem('flow-order-id', buyOrder)
-
-  if (!token) {
+  if (!buyOrder) {
     estado.value = 'error'
-    resultado.value = { mensaje: 'No se pudo determinar el estado del pago (token ausente).' }
+    resultado.value = { mensaje: 'No se encontró la orden.' }
+    console.error('[❌ Confirmación] No se encontró buyOrder en URL ni localStorage')
     return
   }
 
+  estado.value = 'cargando'
+  const startTime = Date.now()
   try {
-    const apiBase = import.meta.env.PROD ? '' : 'http://localhost:3000'
-    const res = await fetch(`${apiBase}/api/flow/status`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        token,
-        buyOrder,
-        ...form
-      })
-    })
+    const datos = await consultarEstadoEnFirestore(buyOrder)
+    const elapsed = Date.now() - startTime
+    console.log(`[⏱️ Confirmación] Consulta a Firestore tomó ${elapsed} ms`)
 
-    let data = null
-    try {
-      data = await res.json()
-    } catch (e) {
-      estado.value = 'error'
-      resultado.value = { mensaje: 'Error parseando la respuesta del backend.' }
-      console.error('[❌ Error parseando JSON de Flow]', e)
+    if (!datos) {
+      estado.value = 'esperando'
+      resultado.value = { mensaje: 'Esperando confirmación de pago...' }
+      console.warn('[⏳ Confirmación] Documento no encontrado en Firestore para buyOrder:', buyOrder)
       return
     }
-
-    resultado.value = { ...data }
-
-    if (!res.ok) {
-      estado.value = 'error'
-      resultado.value = { mensaje: `Error HTTP del backend: ${res.status}` }
-      console.error('[Flow][ERROR] HTTP:', res.status, data)
-      return
+    resultado.value = datos
+    console.log('[✅ Confirmación] Documento Firestore:', datos)
+    if (datos.estado === 'exito') {
+      estado.value = 'exito'
+      console.log('[🎉 Confirmación] Pago exitoso para buyOrder:', buyOrder)
+    } else if (datos.estado === 'rechazado') {
+      estado.value = 'rechazado'
+      console.warn('[⚠️ Confirmación] Pago rechazado para buyOrder:', buyOrder)
+    } else if (datos.estado === 'anulado') {
+      estado.value = 'anulado'
+      console.warn('[⚠️ Confirmación] Pago anulado para buyOrder:', buyOrder)
+    } else {
+      estado.value = 'esperando'
+      console.log('[⏳ Confirmación] Estado aún no definido para buyOrder:', buyOrder, 'Estado:', datos.estado)
     }
-
-    switch (data?.status) {
-      case 2:
-        estado.value = 'exito'
-        await guardarEnFirebase(buyOrder, {
-          tipo: 'Flow',
-          detalles: data,
-          estado: 'exito'
-        }, form)
-        break
-      case 3:
-        estado.value = 'rechazado'
-        await guardarEnFirebase(buyOrder, {
-          tipo: 'Flow',
-          detalles: data,
-          estado: 'rechazado'
-        }, form)
-        break
-      case 4:
-        estado.value = 'anulado'
-        await guardarEnFirebase(buyOrder, {
-          tipo: 'Flow',
-          detalles: data,
-          estado: 'anulado'
-        }, form)
-        break
-      default:
-        estado.value = 'error'
-        resultado.value = { mensaje: 'No se pudo determinar el estado del pago.', ...data }
-        console.error('[Flow][ERROR] Estado inesperado:', res.status, data)
-    }
-  } catch (err) {
+  } catch (e) {
     estado.value = 'error'
-    resultado.value = { mensaje: 'Error consultando estado del pago.' }
-    console.error('[Flow][ERROR]', err)
+    resultado.value = { mensaje: 'Error consultando Firestore.' }
+    console.error('[❌ Confirmación] Error consultando Firestore:', e)
   }
 })
 </script>
