@@ -115,6 +115,8 @@ exports.confirmFlowPayment = async (req, res) => {
           nombre: req.body.nombre || '',
           empresa: req.body.empresa || '',
           sitio: req.body.sitio || '',
+          cargo: req.body.cargo || '',
+          email: req.body.email || '',
           fecha: FieldValue.serverTimestamp()
         }, { merge: true });
         console.log('[Flow Confirm] Guardado en Firestore:', flowResponse.commerceOrder);
@@ -137,7 +139,7 @@ exports.confirmFlowPayment = async (req, res) => {
 // Endpoint para consultar el estado de una transacción en Flow
 exports.getFlowStatus = async (req, res) => {
   try {
-    const { token, buyOrder, nombre, empresa, sitio } = req.body;
+    const { token, buyOrder, nombre, empresa, sitio, cargo, email } = req.body;
     console.log('[Flow][Status] Consultando estado para token:', token, 'buyOrder:', buyOrder);
     if (!token) return res.status(400).json({ error: 'Falta token' });
     const params = {
@@ -148,14 +150,16 @@ exports.getFlowStatus = async (req, res) => {
     const response = await axios.get(FLOW_STATUS_URL, { params });
     console.log('[Flow][Status] Respuesta de Flow:', response.data);
     // Si el estado es anulado/cancelado o rechazado, guarda en la base de datos
-    if (buyOrder && (nombre || empresa || sitio)) {
+    if (buyOrder && (nombre || empresa || sitio || cargo || email)) {
       try {
         const db = getFirestore();
         const ref = db.collection('solicitudes').doc(buyOrder);
         await ref.set({
           nombre: nombre || '',
           empresa: empresa || '',
-          sitio: sitio || ''
+          sitio: sitio || '',
+          cargo: req.body.cargo || '',
+          email: req.body.email || ''
         }, { merge: true });
         console.log('[Flow][Status] Actualizados datos de formulario en Firestore:', buyOrder);
       } catch (e) {
