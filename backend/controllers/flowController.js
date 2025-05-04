@@ -137,7 +137,7 @@ exports.confirmFlowPayment = async (req, res) => {
 // Endpoint para consultar el estado de una transacción en Flow
 exports.getFlowStatus = async (req, res) => {
   try {
-    const { token, buyOrder } = req.body;
+    const { token, buyOrder, nombre, empresa, sitio } = req.body;
     console.log('[Flow][Status] Consultando estado para token:', token, 'buyOrder:', buyOrder);
     if (!token) return res.status(400).json({ error: 'Falta token' });
     const params = {
@@ -148,21 +148,18 @@ exports.getFlowStatus = async (req, res) => {
     const response = await axios.get(FLOW_STATUS_URL, { params });
     console.log('[Flow][Status] Respuesta de Flow:', response.data);
     // Si el estado es anulado/cancelado o rechazado, guarda en la base de datos
-    if (response.data.status !== 'AUTHORIZED' && buyOrder) {
-      // Guardar en Firestore como anulado (solo si tienes Firestore configurado en el backend)
+    if (buyOrder && (nombre || empresa || sitio)) {
       try {
-        const estado = response.data.status === 'FAILED' ? 'rechazado' : 'anulado';
-        console.log(`[Flow][Status] Guardando en Firestore como ${estado}`, buyOrder);
-        const ref = getFirestore().collection('solicitudes').doc(buyOrder);
-        await setDoc(ref, {
-          tipo: 'Flow',
-          detalles: response.data,
-          estado: estado,
-          fecha: FieldValue.serverTimestamp()
+        const db = getFirestore();
+        const ref = db.collection('solicitudes').doc(buyOrder);
+        await ref.set({
+          nombre: nombre || '',
+          empresa: empresa || '',
+          sitio: sitio || ''
         }, { merge: true });
-        console.log('[Flow][Status] Guardado exitoso en Firestore');
+        console.log('[Flow][Status] Actualizados datos de formulario en Firestore:', buyOrder);
       } catch (e) {
-        console.error('[❌ Error guardando en Firestore]', e);
+        console.error('[❌ Error actualizando datos de formulario en Firestore]', e);
       }
     }
     res.json({ ...response.data, buyOrder }); // Incluye el buyOrder en la respuesta

@@ -62,25 +62,26 @@
   const status = ref('')
   const esMercadoPago = ref(false)
   
-  async function guardarEnFirebase(buyOrder, pago) {
+  async function guardarEnFirebase(buyOrder, pago, form = {}) {
     try {
       if (!buyOrder) return
       if (localStorage.getItem('solicitud-guardada-' + buyOrder)) {
         console.log(`[🟡 Ya guardado en Firebase] buyOrder: ${buyOrder}`)
         return
       }
-      const form = JSON.parse(localStorage.getItem('formulario-seo') || '{}')
-      console.log('[🔥 Intentando guardar en Firebase]', buyOrder, { ...form, ...pago })
+      const formData = Object.keys(form).length ? form : JSON.parse(localStorage.getItem('formulario-seo') || '{}')
+      console.log('[🔥 Intentando guardar en Firebase]', buyOrder, { ...formData, ...pago })
       await setDoc(doc(collection(db, 'solicitudes'), buyOrder), {
-        nombre: form.nombre || '',
-        sitio: form.sitio || '',
-        empresa: form.empresa || '',
-        cargo: form.cargo || '',
-        email: form.email || '',
+        nombre: formData.nombre || '',
+        sitio: formData.sitio || '',
+        empresa: formData.empresa || '',
+        cargo: formData.cargo || '',
+        email: formData.email || '',
         tipo_pago: pago.tipo,
         detalles_pago: pago.detalles,
+        estado: pago.estado || '',
         fecha: serverTimestamp()
-      })
+      }, { merge: true })
       localStorage.setItem('solicitud-guardada-' + buyOrder, '1')
       console.log(`[✅ Guardado en Firebase] buyOrder: ${buyOrder}`)
     } catch (e) {
@@ -113,8 +114,9 @@
           resultado.value = data
           await guardarEnFirebase(data.buy_order, {
             tipo: 'Webpay',
-            detalles: data
-          })
+            detalles: data,
+            estado: 'exito'
+          }, form)
         } else {
           estado.value = 'rechazado'
           resultado.value = data
@@ -122,26 +124,24 @@
             tipo: 'Flow',
             detalles: data,
             estado: 'rechazado'
-          })
+          }, form)
         }
       } catch (err) {
         estado.value = 'error'
         resultado.value = { mensaje: 'Error técnico al confirmar el pago.' }
       }
     } else if (tbk_token) {
-      // Pago anulado/cancelado: consulta estado real en backend
-      estado.value = 'anulado'
-      resultado.value = { mensaje: 'El pago fue cancelado o anulado por el usuario.' }
+      estado.value = 'cargando'
+      resultado.value = { mensaje: 'Consultando estado del pago...' }
+
       try {
-        console.log('[Flow][DEBUG] tbk_token:', tbk_token)
-        console.log('[Flow][DEBUG] buyOrder:', buyOrder)
-        console.log('[Flow][DEBUG] form:', form)
         const apiBase = import.meta.env.PROD ? '' : 'http://localhost:3000'
         const res = await fetch(`${apiBase}/api/flow/status`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: tbk_token, buyOrder, ...form })
         })
+
         console.log('[Flow][DEBUG] res.status:', res.status)
         let data = null
         try {
@@ -150,44 +150,40 @@
         } catch (e) {
           console.error('[❌ Error parseando JSON de Flow]', e)
         }
-        if (typeof data?.status !== 'undefined') {
-          // Flow: status numérico
-          if (data.status === 2) {
-            estado.value = 'exito'
-            resultado.value = { mensaje: '¡Pago aprobado!', ...data }
-          } else if (data.status === 3) {
-            estado.value = 'rechazado'
-            resultado.value = { mensaje: 'Pago rechazado.', ...data }
-          } else if (data.status === 4) {
-            estado.value = 'anulado'
-            resultado.value = { mensaje: 'Pago anulado por el usuario.', ...data }
-          } else {
-            estado.value = 'error'
-            resultado.value = { mensaje: 'No se pudo determinar el estado del pago.', ...data }
-          }
+
+        if (res.ok && data?.status === 2) {
+          estado.value = 'exito'
+          resultado.value = { mensaje: '¡Pago aprobado!', ...data }
           await guardarEnFirebase(buyOrder, {
             tipo: 'Flow',
             detalles: data,
             estado: estado.value
-          })
+          }, form)
+        } else if (data?.status === 3) {
+          estado.value = 'rechazado'
+          resultado.value = { mensaje: 'Pago rechazado.', ...data }
+          await guardarEnFirebase(buyOrder, {
+            tipo: 'Flow',
+            detalles: data,
+            estado: estado.value
+          }, form)
+        } else if (data?.status === 4) {
+          estado.value = 'anulado'
+          resultado.value = { mensaje: 'Pago anulado por el usuario.', ...data }
+          await guardarEnFirebase(buyOrder, {
+            tipo: 'Flow',
+            detalles: data,
+            estado: estado.value
+          }, form)
         } else {
-          // Si hubo error HTTP pero el JSON tiene status 2, igual muestra éxito
-          if (data && data.status === 2) {
-            estado.value = 'exito'
-            resultado.value = { mensaje: '¡Pago aprobado!', ...data }
-            await guardarEnFirebase(buyOrder, {
-              tipo: 'Flow',
-              detalles: data,
-              estado: estado.value
-            })
-          } else {
-            estado.value = 'error'
-            resultado.value = { mensaje: 'No se pudo determinar el estado del pago.', ...data }
-          }
-          console.error('[❌ Error HTTP o JSON de Flow]', res.status, data)
+          estado.value = 'error'
+          resultado.value = { mensaje: 'Estado desconocido del pago.', ...data }
+          console.error('[Flow][ERROR] Estado inesperado:', res.status, data)
         }
       } catch (err) {
-        console.error('[❌ Error consultando estado de Flow]', err)
+        estado.value = 'error'
+        resultado.value = { mensaje: 'Error consultando estado del pago.' }
+        console.error('[Flow][ERROR]', err)
       }
     } else {
       // Otro caso: error genérico
