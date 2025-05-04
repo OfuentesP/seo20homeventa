@@ -133,15 +133,20 @@
       estado.value = 'anulado'
       resultado.value = { mensaje: 'El pago fue cancelado o anulado por el usuario.' }
       try {
+        console.log('[Flow][DEBUG] tbk_token:', tbk_token)
+        console.log('[Flow][DEBUG] buyOrder:', buyOrder)
+        console.log('[Flow][DEBUG] form:', form)
         const apiBase = import.meta.env.PROD ? '' : 'http://localhost:3000'
         const res = await fetch(`${apiBase}/api/flow/status`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: tbk_token, buyOrder, ...form })
         })
+        console.log('[Flow][DEBUG] res.status:', res.status)
         let data = null
         try {
           data = await res.json()
+          console.log('[Flow][DEBUG] Respuesta backend:', data)
         } catch (e) {
           console.error('[❌ Error parseando JSON de Flow]', e)
         }

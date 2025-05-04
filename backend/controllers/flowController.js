@@ -112,6 +112,9 @@ exports.confirmFlowPayment = async (req, res) => {
           amount: flowResponse.amount,
           payer: flowResponse.payer,
           commerceOrder: flowResponse.commerceOrder,
+          nombre: req.body.nombre || '',
+          empresa: req.body.empresa || '',
+          sitio: req.body.sitio || '',
           fecha: FieldValue.serverTimestamp()
         }, { merge: true });
         console.log('[Flow Confirm] Guardado en Firestore:', flowResponse.commerceOrder);
