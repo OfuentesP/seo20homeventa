@@ -2,7 +2,7 @@ const axios = require('axios');
 const crypto = require('crypto');
 const qs = require('querystring');
 const admin = require('../firebase');
-const { getFirestore, setDoc, serverTimestamp } = require('firebase-admin/firestore');
+const { getFirestore, setDoc, FieldValue } = require('firebase-admin/firestore');
 
 const FLOW_API_URL = 'https://www.flow.cl/api/payment/create';
 const FLOW_STATUS_URL = 'https://www.flow.cl/api/payment/getStatus';
@@ -69,6 +69,7 @@ exports.createFlowPayment = async (req, res) => {
 };
 
 exports.confirmFlowPayment = async (req, res) => {
+  let flowResponse = null;
   try {
     console.log('[Flow Confirm] req.query:', req.query);
     console.log('[Flow Confirm] req.body:', req.body);
@@ -97,13 +98,14 @@ exports.confirmFlowPayment = async (req, res) => {
     };
     params.s = signParams(params, SECRET_KEY);
     const response = await axios.get(FLOW_STATUS_URL, { params });
-    console.log('[Flow Confirm] Estado recibido:', response.data);
+    flowResponse = response.data;
+    console.log('[Flow Confirm] Estado recibido:', flowResponse);
 
     // Guarda en Firestore si commerceOrder está presente
-    if (response.data.commerceOrder) {
+    if (flowResponse.commerceOrder) {
       try {
         const db = getFirestore();
-        const detalles = response.data;
+        const detalles = flowResponse;
         const paymentData = detalles.paymentData || {};
         const ref = db.collection('solicitudes').doc(detalles.commerceOrder);
         await setDoc(ref, {
@@ -124,7 +126,7 @@ exports.confirmFlowPayment = async (req, res) => {
           empresa: req.body.empresa || '',
           cargo: req.body.cargo || '',
           detalles: detalles,
-          fecha: serverTimestamp()
+          fecha: FieldValue.serverTimestamp()
         }, { merge: true });
         console.log('[Flow Confirm] Guardado en Firestore:', detalles.commerceOrder);
       } catch (e) {
@@ -133,9 +135,13 @@ exports.confirmFlowPayment = async (req, res) => {
       }
     }
 
-    res.json(response.data);
+    res.json(flowResponse);
   } catch (err) {
     console.error('[Flow Confirm Error]', err);
+    // Si ya tenemos respuesta de Flow, igual la enviamos al frontend
+    if (flowResponse) {
+      return res.json(flowResponse);
+    }
     res.status(500).json({ error: 'Error confirmando pago', detalle: err.message });
   }
 };
@@ -164,7 +170,7 @@ exports.getFlowStatus = async (req, res) => {
           tipo: 'Flow',
           detalles: response.data,
           estado: estado,
-          fecha: serverTimestamp()
+          fecha: FieldValue.serverTimestamp()
         }, { merge: true });
         console.log('[Flow][Status] Guardado exitoso en Firestore');
       } catch (e) {

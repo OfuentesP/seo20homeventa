@@ -9,35 +9,34 @@
         <p v-else-if="status === 'pending'">Tu pago está pendiente. Te avisaremos cuando se confirme.</p>
       </template>
       <template v-else>
-        <h1 class="text-3xl font-bold mb-4" v-if="resultado?.status === 'AUTHORIZED'"><span role="img" aria-label="pago confirmado">✅</span> ¡Pago confirmado!</h1>
-        <h1 class="text-3xl font-bold mb-4" v-else-if="resultado"><span role="img" aria-label="pago no confirmado">❌</span> Estado: {{ resultado.status }}</h1>
-        <p v-if="resultado?.status === 'AUTHORIZED'">
+        <h1 class="text-3xl font-bold mb-4" v-if="estado === 'exito' || resultado?.status === 2 || resultado?.status === 'AUTHORIZED'">
+          <span role="img" aria-label="pago confirmado">✅</span> ¡Pago confirmado!
+        </h1>
+        <h1 class="text-3xl font-bold mb-4" v-else-if="resultado">
+          <span role="img" aria-label="pago no confirmado">❌</span> Estado: {{ resultado.status }}
+        </h1>
+        <p v-if="estado === 'exito' || resultado?.status === 2 || resultado?.status === 'AUTHORIZED'">
           Gracias por tu compra. Te enviaremos el informe SEO en menos de 24 horas hábiles.
         </p>
         <p v-else-if="resultado">Tu pago no pudo ser confirmado. Estado recibido: {{ resultado.status }}</p>
         <p v-else>Validando tu pago...</p>
     
-        <div v-if="resultado?.status === 'AUTHORIZED'" class="mt-10 text-left text-sm bg-gray-50 rounded p-6 shadow">
+        <div v-if="estado === 'exito' || resultado?.status === 2 || resultado?.status === 'AUTHORIZED'" class="mt-10 text-left text-sm bg-gray-50 rounded p-6 shadow">
           <h2 class="text-lg font-semibold mb-2">Detalles de la transacción</h2>
-          <p><strong>Orden de compra:</strong> {{ resultado.buy_order }}</p>
+          <p><strong>Orden de compra:</strong> {{ resultado.buy_order || resultado.commerceOrder }}</p>
           <p><strong>Monto pagado:</strong> ${{ resultado.amount }}</p>
-          <p><strong>Tarjeta:</strong> **** **** **** {{ resultado.card_detail.card_number }}</p>
-          <p><strong>Tipo de pago:</strong> {{ resultado.payment_type_code }}</p>
-          <p><strong>Código de autorización:</strong> {{ resultado.authorization_code }}</p>
+          <p v-if="resultado.card_detail"><strong>Tarjeta:</strong> **** **** **** {{ resultado.card_detail.card_number }}</p>
+          <p v-if="resultado.payment_type_code"><strong>Tipo de pago:</strong> {{ resultado.payment_type_code }}</p>
+          <p v-if="resultado.authorization_code"><strong>Código de autorización:</strong> {{ resultado.authorization_code }}</p>
         </div>
     
         <div v-if="estado === 'cargando'" class="text-gray-500 mt-10">
           Procesando tu pago... ⏳
         </div>
     
-        <div v-else-if="estado === 'exito'" class="text-green-600 mt-10">
-          <p class="text-xl font-semibold mb-2">✅ ¡Pago aprobado!</p>
-          <p>Tu orden <strong>{{ resultado.buy_order }}</strong> fue confirmada con éxito.</p>
-        </div>
-    
         <div v-else-if="estado === 'rechazado'" class="text-yellow-600 mt-10">
           <p class="text-xl font-semibold mb-2">⚠️ Pago rechazado o no autorizado.</p>
-          <p>Estado entregado por Transbank: <strong>{{ resultado.status }}</strong></p>
+          <p>Estado entregado por el medio de pago: <strong>{{ resultado.status }}</strong></p>
         </div>
     
         <div v-else-if="estado === 'error'" class="text-red-600 mt-10">
