@@ -62,7 +62,7 @@ useHead({
     { property: 'og:title', content: 'Informe SEO de tu Home por $20 USD | SEO20.dev' },
     { property: 'og:description', content: 'Recibe en 24 h un análisis SEO técnico de tu página principal con velocidad, Core Web Vitals y metadatos. Informe PDF claro y accionable por solo $20 USD.' },
     // IMPORTANTE: Reemplaza con la URL de una imagen real optimizada para OG (1200x630px recomendado)
-    { property: 'og:image', content: `${baseUrl}/images/og-auditoria-seo-10.jpg` },
+    { property: 'og:image', content: `${baseUrl}/images/seo20og.png` },
     { property: 'og:type', content: 'product' }, // 'product' o 'website'/'service' son apropiados
     { property: 'og:url', content: canonicalUrl }, // URL Canónica de esta página
     { property: 'og:site_name', content: 'SEO20.dev' }, // Nombre del sitio
@@ -71,7 +71,7 @@ useHead({
     { name: 'twitter:title', content: 'Informe SEO de tu Home por $20 USD | SEO20.dev' },
     { name: 'twitter:description', content: 'Recibe en 24 h un análisis SEO técnico de tu página principal con velocidad, Core Web Vitals y metadatos. Informe PDF claro y accionable por solo $20 USD.' },
     // IMPORTANTE: Reemplaza con la URL de una imagen real optimizada para Twitter (puede ser la misma que OG)
-    { name: 'twitter:image', content: `${baseUrl}/images/twitter-auditoria-seo-10.jpg` },
+    { name: 'twitter:image', content: `${baseUrl}/images/seo20og.png` },
     // { name: 'twitter:site', content: '@tuUsuarioTwitter' } // Opcional: si tienes cuenta de Twitter
   ],
 
@@ -93,7 +93,7 @@ useHead({
         "name": "Informe SEO de tu Home por $20 USD",
         "description": "Recibe en 24 h un análisis SEO técnico de tu página principal con velocidad, Core Web Vitals y metadatos. Informe PDF claro y accionable por solo $20 USD.",
         // IMPORTANTE: Reemplaza con la URL de una imagen real del producto/servicio
-        "image": `${baseUrl}/images/informe-seo-muestra.jpg`,
+        "image": `${baseUrl}/images/seo20og.png`,
         "sku": "SEO10-AUDIT-EXPRESS", // Identificador único del producto/servicio (opcional)
         "mpn": "SEO10AUDIT01", // Manufacturer Part Number (si aplica, opcional)
         "brand": {
@@ -104,7 +104,7 @@ useHead({
         "offers": {
           "@type": "Offer",
           "priceCurrency": "USD",
-          "price": "10.00",
+          "price": "20.00",
           "availability": "https://schema.org/InStock", // El servicio está disponible
           "url": `${baseUrl}/solicitud`, // URL para comprar/solicitar
           "validFrom": "2024-01-01", // Fecha desde que la oferta es válida (opcional)
