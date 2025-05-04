@@ -89,6 +89,7 @@ exports.confirmFlowPayment = async (req, res) => {
 exports.getFlowStatus = async (req, res) => {
   try {
     const { token, buyOrder } = req.body;
+    console.log('[Flow][Status] Consultando estado para token:', token, 'buyOrder:', buyOrder);
     if (!token) return res.status(400).json({ error: 'Falta token' });
     const params = {
       apiKey: API_KEY,
@@ -96,24 +97,32 @@ exports.getFlowStatus = async (req, res) => {
     };
     params.s = signParams(params, SECRET_KEY);
     const response = await axios.get(FLOW_STATUS_URL, { params });
-    // Si el estado es anulado/cancelado, guarda en la base de datos
+    console.log('[Flow][Status] Respuesta de Flow:', response.data);
+    // Si el estado es anulado/cancelado o rechazado, guarda en la base de datos
     if (response.data.status !== 'AUTHORIZED' && buyOrder) {
       // Guardar en Firestore como anulado (solo si tienes Firestore configurado en el backend)
       try {
         const { getFirestore, doc, setDoc, serverTimestamp } = require('firebase-admin/firestore');
         const db = getFirestore();
+        const estado = response.data.status === 'FAILED' ? 'rechazado' : 'anulado';
+        console.log(`[Flow][Status] Guardando en Firestore como ${estado}`, buyOrder);
         await setDoc(doc(db, 'solicitudes', buyOrder), {
           tipo: 'Flow',
           detalles: response.data,
-          estado: 'anulado',
+          estado: estado,
           fecha: serverTimestamp()
         }, { merge: true });
+        console.log('[Flow][Status] Guardado exitoso en Firestore');
       } catch (e) {
-        console.error('[❌ Error guardando anulación en Firestore]', e);
+        console.error('[❌ Error guardando en Firestore]', e);
       }
     }
-    res.json(response.data);
+    res.json({ ...response.data, buyOrder }); // Incluye el buyOrder en la respuesta
   } catch (err) {
+    console.error('[Flow][Status] Error:', err.message);
+    if (err.response) {
+      console.error('[Flow][Status] Error Response:', err.response.data);
+    }
     res.status(500).json({ error: 'Error consultando estado en Flow', detalle: err.message });
   }
 }; 

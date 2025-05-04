@@ -115,6 +115,11 @@
         } else {
           estado.value = 'rechazado'
           resultado.value = data
+          await guardarEnFirebase(data.buy_order, {
+            tipo: 'Flow',
+            detalles: data,
+            estado: 'rechazado'
+          })
         }
       } catch (err) {
         estado.value = 'error'
