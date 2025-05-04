@@ -83,9 +83,12 @@ async function guardarEnFirebase(buyOrder, pago, form = {}) {
 
 onMounted(async () => {
   const params = new URLSearchParams(window.location.search)
-  const token = params.get('token')
-  const buyOrder = params.get('buy_order') || localStorage.getItem('flow-order-id')
+  let token = params.get('token') || params.get('TBK_TOKEN') || localStorage.getItem('flow-token')
+  let buyOrder = params.get('buy_order') || params.get('TBK_ORDEN_COMPRA') || localStorage.getItem('flow-order-id')
   const form = JSON.parse(localStorage.getItem('formulario-seo') || '{}')
+
+  if (token) localStorage.setItem('flow-token', token)
+  if (buyOrder) localStorage.setItem('flow-order-id', buyOrder)
 
   if (!token) {
     estado.value = 'error'
