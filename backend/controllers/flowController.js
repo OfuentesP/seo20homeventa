@@ -83,4 +83,37 @@ exports.confirmFlowPayment = async (req, res) => {
     console.error('[Flow Confirm Error]', err.response?.data || err.message);
     res.status(500).send('Error confirmando pago');
   }
+};
+
+// Endpoint para consultar el estado de una transacción en Flow
+exports.getFlowStatus = async (req, res) => {
+  try {
+    const { token, buyOrder } = req.body;
+    if (!token) return res.status(400).json({ error: 'Falta token' });
+    const params = {
+      apiKey: API_KEY,
+      token
+    };
+    params.s = signParams(params, SECRET_KEY);
+    const response = await axios.get(FLOW_STATUS_URL, { params });
+    // Si el estado es anulado/cancelado, guarda en la base de datos
+    if (response.data.status !== 'AUTHORIZED' && buyOrder) {
+      // Guardar en Firestore como anulado (solo si tienes Firestore configurado en el backend)
+      try {
+        const { getFirestore, doc, setDoc, serverTimestamp } = require('firebase-admin/firestore');
+        const db = getFirestore();
+        await setDoc(doc(db, 'solicitudes', buyOrder), {
+          tipo: 'Flow',
+          detalles: response.data,
+          estado: 'anulado',
+          fecha: serverTimestamp()
+        }, { merge: true });
+      } catch (e) {
+        console.error('[❌ Error guardando anulación en Firestore]', e);
+      }
+    }
+    res.json(response.data);
+  } catch (err) {
+    res.status(500).json({ error: 'Error consultando estado en Flow', detalle: err.message });
+  }
 }; 

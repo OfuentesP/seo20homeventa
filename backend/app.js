@@ -24,6 +24,11 @@ app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
+// Sirve index.html para POST en rutas de frontend (como /confirmacion)
+app.post(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+
 // Puerto
 const PORT = process.env.PORT || 3000;
 

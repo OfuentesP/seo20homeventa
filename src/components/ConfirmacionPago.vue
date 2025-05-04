@@ -44,6 +44,11 @@
           <p class="text-xl font-semibold mb-2">❌ Error al procesar el pago</p>
           <p>{{ resultado.mensaje }}</p>
         </div>
+    
+        <div v-else-if="estado === 'anulado'" class="text-yellow-600 mt-10">
+          <p class="text-xl font-semibold mb-2">⚠️ Pago cancelado o anulado</p>
+          <p>{{ resultado.mensaje }}</p>
+        </div>
       </template>
     </div>
   </template>
@@ -86,54 +91,62 @@
   
   onMounted(async () => {
     const params = new URLSearchParams(window.location.search)
-    if (window.location.pathname.includes('confirmacion-mercadopago')) {
-      esMercadoPago.value = true
-      status.value = params.get('status') || ''
-      const buyOrder = params.get('external_reference') || params.get('order_id') || 'mercadopago-' + Date.now()
-      console.log('[🟦 MercadoPago status]', status.value, Object.fromEntries(params.entries()))
-      if (status.value === 'success') {
-        await guardarEnFirebase(buyOrder, {
-          tipo: 'MercadoPago',
-          detalles: { status: status.value, ...Object.fromEntries(params.entries()) }
+    const token_ws = params.get('token_ws')
+    const tbk_token = params.get('TBK_TOKEN')
+    const buyOrder = params.get('TBK_ORDEN_COMPRA') || params.get('buy_order')
+
+    if (token_ws) {
+      // Pago exitoso: consulta y muestra resultado
+      const apiBase = import.meta.env.PROD ? '' : 'http://localhost:3000'
+      try {
+        const res = await fetch(`${apiBase}/api/webpay/commit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token_ws })
         })
+        const data = await res.json()
+        if (res.ok && data.status === 'AUTHORIZED') {
+          estado.value = 'exito'
+          resultado.value = data
+          await guardarEnFirebase(data.buy_order, {
+            tipo: 'Webpay',
+            detalles: data
+          })
+        } else {
+          estado.value = 'rechazado'
+          resultado.value = data
+        }
+      } catch (err) {
+        estado.value = 'error'
+        resultado.value = { mensaje: 'Error técnico al confirmar el pago.' }
       }
-      return
-    }
-  
-    const token = params.get('token_ws')
-  
-    if (!token) {
-      estado.value = 'error'
-      resultado.value = { mensaje: 'Token de pago no encontrado en la URL.' }
-      return
-    }
-  
-    try {
-      const apiBase = import.meta.env.PROD ? '' : 'http://localhost:3000';
-      const res = await fetch(`${apiBase}/api/webpay/commit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token_ws: token })
-      })
-  
-      const data = await res.json()
-      console.log('[🟩 Resultado Webpay]', data)
-  
-      if (res.ok && data.status === 'AUTHORIZED') {
-        estado.value = 'exito'
-        resultado.value = data
-        await guardarEnFirebase(data.buy_order, {
-          tipo: 'Webpay',
-          detalles: data
+    } else if (tbk_token) {
+      // Pago anulado/cancelado: consulta estado real en backend
+      estado.value = 'anulado'
+      resultado.value = { mensaje: 'El pago fue cancelado o anulado por el usuario.' }
+      try {
+        const apiBase = import.meta.env.PROD ? '' : 'http://localhost:3000'
+        const res = await fetch(`${apiBase}/api/flow/status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: tbk_token, buyOrder })
         })
-      } else {
-        estado.value = 'rechazado'
-        resultado.value = data
+        const data = await res.json()
+        if (data.status && data.status !== 'AUTHORIZED') {
+          resultado.value = { mensaje: 'El pago fue cancelado o anulado por el usuario.', ...data }
+          await guardarEnFirebase(buyOrder, {
+            tipo: 'Flow',
+            detalles: data,
+            estado: 'anulado'
+          })
+        }
+      } catch (err) {
+        console.error('[❌ Error consultando estado de Flow]', err)
       }
-    } catch (err) {
-      console.error('[❌ Error en confirmación Webpay]', err)
+    } else {
+      // Otro caso: error genérico
       estado.value = 'error'
-      resultado.value = { mensaje: 'Error técnico al confirmar el pago.' }
+      resultado.value = { mensaje: 'No se pudo determinar el estado del pago.' }
     }
   })
   </script>
