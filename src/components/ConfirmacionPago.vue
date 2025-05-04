@@ -1,4 +1,5 @@
 <template>
+  <p>1.5</p>
   <div class="max-w-2xl mx-auto py-20 px-6 text-center">
     <h1 class="text-3xl font-bold mb-4" v-if="estado === 'exito'">
       <span role="img" aria-label="pago confirmado">✅</span> ¡Pago confirmado con Flow!
