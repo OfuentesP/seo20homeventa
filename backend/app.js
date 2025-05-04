@@ -20,7 +20,7 @@ app.use('/api', routes);
 app.use(express.static(path.join(__dirname, '../dist')));
 
 // Para cualquier otra ruta que no sea API, devuelve index.html
-app.get('*', (req, res) => {
+app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
