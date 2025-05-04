@@ -1,6 +1,8 @@
 const axios = require('axios');
 const crypto = require('crypto');
 const qs = require('querystring');
+const admin = require('../firebase');
+const { getFirestore, doc, setDoc, serverTimestamp } = require('firebase-admin/firestore');
 
 const FLOW_API_URL = 'https://www.flow.cl/api/payment/create';
 const FLOW_STATUS_URL = 'https://www.flow.cl/api/payment/getStatus';
@@ -100,11 +102,9 @@ exports.confirmFlowPayment = async (req, res) => {
     // Guarda en Firestore si commerceOrder está presente
     if (response.data.commerceOrder) {
       try {
-        const { getFirestore, doc, setDoc, serverTimestamp } = require('firebase-admin/firestore');
-        const db = getFirestore();
         const detalles = response.data;
         const paymentData = detalles.paymentData || {};
-        await setDoc(doc(db, 'solicitudes', detalles.commerceOrder), {
+        await setDoc(doc(getFirestore(), 'solicitudes', detalles.commerceOrder), {
           tipo: 'Flow',
           estado: detalles.status === 2 ? 'exito' : detalles.status === 3 ? 'rechazado' : detalles.status === 4 ? 'anulado' : 'otro',
           amount: detalles.amount || paymentData.amount,
@@ -155,11 +155,9 @@ exports.getFlowStatus = async (req, res) => {
     if (response.data.status !== 'AUTHORIZED' && buyOrder) {
       // Guardar en Firestore como anulado (solo si tienes Firestore configurado en el backend)
       try {
-        const { getFirestore, doc, setDoc, serverTimestamp } = require('firebase-admin/firestore');
-        const db = getFirestore();
         const estado = response.data.status === 'FAILED' ? 'rechazado' : 'anulado';
         console.log(`[Flow][Status] Guardando en Firestore como ${estado}`, buyOrder);
-        await setDoc(doc(db, 'solicitudes', buyOrder), {
+        await setDoc(doc(getFirestore(), 'solicitudes', buyOrder), {
           tipo: 'Flow',
           detalles: response.data,
           estado: estado,
