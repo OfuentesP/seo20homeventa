@@ -3,6 +3,7 @@
     <router-link to="/" class="flex justify-center items-center">
       <img src="/img/logo-seo-20.webp" alt="Logo SEO20" width="256" height="82" class="mx-auto" loading="lazy" />
     </router-link>
+
   </header>
   <nav class="sr-only" aria-label="Navegación principal">
     <ul>
@@ -54,12 +55,12 @@ useHead({
   // Meta tags esenciales para SEO y redes sociales
   meta: [
     { name: 'robots', content: 'index,follow' },
-    { name: 'description', content: 'Recibe en 24 h un análisis SEO técnico de tu página principal con velocidad, Core Web Vitals y metadatos. Informe PDF claro y accionable por solo $10 USD.' },
+    { name: 'description', content: 'Recibe en 24 h un análisis SEO técnico de tu página principal con velocidad, Core Web Vitals y metadatos. Informe PDF claro y accionable por solo $20 USD.' },
     // Keywords tiene bajo impacto en Google, pero puede servir para otros motores o contexto interno
-    { name: 'keywords', content: 'auditoría SEO, análisis SEO técnico, informe SEO, diagnóstico web, SEO barato, optimización web, Core Web Vitals, velocidad web, SEO para pymes, informe SEO $10' },
+    { name: 'keywords', content: 'auditoría SEO, análisis SEO técnico, informe SEO, diagnóstico web, SEO barato, optimización web, Core Web Vitals, velocidad web, SEO para pymes, informe SEO $20' },
     // Open Graph (para Facebook, LinkedIn, etc.)
-    { property: 'og:title', content: 'Informe SEO de tu Home por $10 USD | SEO20.dev' },
-    { property: 'og:description', content: 'Recibe en 24 h un análisis SEO técnico de tu página principal con velocidad, Core Web Vitals y metadatos. Informe PDF claro y accionable por solo $10 USD.' },
+    { property: 'og:title', content: 'Informe SEO de tu Home por $20 USD | SEO20.dev' },
+    { property: 'og:description', content: 'Recibe en 24 h un análisis SEO técnico de tu página principal con velocidad, Core Web Vitals y metadatos. Informe PDF claro y accionable por solo $20 USD.' },
     // IMPORTANTE: Reemplaza con la URL de una imagen real optimizada para OG (1200x630px recomendado)
     { property: 'og:image', content: `${baseUrl}/images/og-auditoria-seo-10.jpg` },
     { property: 'og:type', content: 'product' }, // 'product' o 'website'/'service' son apropiados
@@ -67,8 +68,8 @@ useHead({
     { property: 'og:site_name', content: 'SEO20.dev' }, // Nombre del sitio
     // Twitter Cards
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'Informe SEO de tu Home por $10 USD | SEO20.dev' },
-    { name: 'twitter:description', content: 'Recibe en 24 h un análisis SEO técnico de tu página principal con velocidad, Core Web Vitals y metadatos. Informe PDF claro y accionable por solo $10 USD.' },
+    { name: 'twitter:title', content: 'Informe SEO de tu Home por $20 USD | SEO20.dev' },
+    { name: 'twitter:description', content: 'Recibe en 24 h un análisis SEO técnico de tu página principal con velocidad, Core Web Vitals y metadatos. Informe PDF claro y accionable por solo $20 USD.' },
     // IMPORTANTE: Reemplaza con la URL de una imagen real optimizada para Twitter (puede ser la misma que OG)
     { name: 'twitter:image', content: `${baseUrl}/images/twitter-auditoria-seo-10.jpg` },
     // { name: 'twitter:site', content: '@tuUsuarioTwitter' } // Opcional: si tienes cuenta de Twitter
@@ -89,8 +90,8 @@ useHead({
       children: JSON.stringify({
         "@context": "https://schema.org",
         "@type": "Product", // O "Service" si lo prefieres
-        "name": "Informe SEO de tu Home por $10 USD",
-        "description": "Recibe en 24 h un análisis SEO técnico de tu página principal con velocidad, Core Web Vitals y metadatos. Informe PDF claro y accionable por solo $10 USD.",
+        "name": "Informe SEO de tu Home por $20 USD",
+        "description": "Recibe en 24 h un análisis SEO técnico de tu página principal con velocidad, Core Web Vitals y metadatos. Informe PDF claro y accionable por solo $20 USD.",
         // IMPORTANTE: Reemplaza con la URL de una imagen real del producto/servicio
         "image": `${baseUrl}/images/informe-seo-muestra.jpg`,
         "sku": "SEO10-AUDIT-EXPRESS", // Identificador único del producto/servicio (opcional)
@@ -137,7 +138,7 @@ useHead({
           // Usamos las preguntas/respuestas mejoradas que ya tenías
            {
             "@type": "Question",
-            "name": "¿Qué incluye exactamente este informe SEO por $10?",
+            "name": "¿Qué incluye exactamente este informe SEO por $20?",
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "Este informe detallado incluye un diagnóstico técnico de tu página de inicio, análisis de la velocidad y experiencia de usuario (Core Web Vitals), una revisión de tu visibilidad en Google, y sugerencias priorizadas y accionables para mejorar tu SEO."
