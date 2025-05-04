@@ -1,5 +1,5 @@
 <template>
-  <p>1.7</p>
+  <p><small>1.8</small></p>
   <div class="max-w-2xl mx-auto py-20 px-6 text-center">
     <h1 class="text-3xl font-bold mb-4" v-if="estado === 'exito'">
       <span role="img" aria-label="pago confirmado">✅</span> ¡Pago confirmado con Flow!
@@ -10,10 +10,13 @@
     <h1 class="text-3xl font-bold mb-4" v-else-if="estado === 'anulado'">
       <span role="img" aria-label="pago anulado">⚠️</span> Pago cancelado o anulado
     </h1>
-    <h1 class="text-3xl font-bold mb-4" v-else-if="estado === 'esperando'">
+    <h1 class="text-3xl font-bold mb-4" v-else-if="estado === 'esperando' || estado === 'cargando'">
       <span role="img" aria-label="esperando confirmacion">⏳</span> Esperando confirmación de pago...
     </h1>
-    <h1 class="text-3xl font-bold mb-4" v-else>
+    <h1 class="text-3xl font-bold mb-4" v-else-if="estado === 'timeout'">
+      <span role="img" aria-label="timeout">⏰</span> No pudimos confirmar tu pago automáticamente
+    </h1>
+    <h1 class="text-3xl font-bold mb-4" v-else-if="estado === 'error'">
       <span role="img" aria-label="error">❌</span> Error al consultar el estado del pago
     </h1>
 
@@ -26,10 +29,13 @@
     <p v-else-if="estado === 'anulado'">
       El pago fue cancelado o anulado. Si tienes dudas, contáctanos.
     </p>
-    <p v-else-if="estado === 'esperando'">
+    <p v-else-if="estado === 'esperando' || estado === 'cargando'">
       Estamos esperando la confirmación de tu pago. Puedes recargar esta página en unos segundos.
     </p>
-    <p v-else>
+    <p v-else-if="estado === 'timeout'">
+      No pudimos confirmar tu pago automáticamente. Por favor, contáctanos o recarga la página más tarde.
+    </p>
+    <p v-else-if="estado === 'error'">
       {{ resultado?.mensaje || 'Ocurrió un error inesperado.' }}
     </p>
 

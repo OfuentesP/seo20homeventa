@@ -42,7 +42,7 @@ exports.createFlowPayment = async (req, res) => {
       commerceOrder: orderId,
       subject: 'Informe SEO Técnico',
       currency: 'CLP',
-      amount: 1000,
+      amount: 20000,
       email: emailLimpio,
       urlConfirmation: `${baseUrl}/api/flow/confirm`,
       urlReturn: `${baseUrl}/confirmacion`
