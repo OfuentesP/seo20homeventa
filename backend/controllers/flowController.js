@@ -59,10 +59,10 @@ exports.createFlowPayment = async (req, res) => {
     );
     console.log('[Flow] Respuesta de Flow:', response.data);
 
-    // Guarda los datos del formulario en Firestore junto con la orden
+    // Guarda los datos del formulario en Firestore como pendiente
     try {
       const db = getFirestore();
-      await db.collection('solicitudes').doc(orderId).set({
+      await db.collection('solicitudes').doc(orderId + '-pendiente').set({
         nombre: nombre || '',
         empresa: empresa || '',
         sitio: sitio || '',
@@ -71,7 +71,7 @@ exports.createFlowPayment = async (req, res) => {
         estado: 'pendiente',
         fecha: FieldValue.serverTimestamp()
       }, { merge: true });
-      console.log('[Flow][Create] Guardado inicial de formulario en Firestore:', orderId);
+      console.log('[Flow][Create] Guardado inicial de formulario en Firestore (pendiente):', orderId + '-pendiente');
     } catch (e) {
       console.error('[Flow][Create][Firestore Error]', e);
     }
@@ -119,25 +119,24 @@ exports.confirmFlowPayment = async (req, res) => {
     flowResponse = response.data;
     console.log('[Flow Confirm] Estado recibido:', flowResponse);
 
-    // Guarda en Firestore si commerceOrder está presente
+    // Guarda en Firestore como exito/rechazado/anulado/otro (no sobrescribe el pendiente)
     if (flowResponse.commerceOrder) {
       try {
         const db = getFirestore();
-        const ref = db.collection('solicitudes').doc(flowResponse.commerceOrder);
+        const statusStr = flowResponse.status === 2 ? 'exito'
+          : flowResponse.status === 3 ? 'rechazado'
+          : flowResponse.status === 4 ? 'anulado'
+          : 'otro';
+        const ref = db.collection('solicitudes').doc(flowResponse.commerceOrder + '-' + statusStr);
         await ref.set({
           tipo: 'Flow',
-          estado: flowResponse.status === 2 ? 'exito' : flowResponse.status === 3 ? 'rechazado' : flowResponse.status === 4 ? 'anulado' : 'otro',
+          estado: statusStr,
           amount: flowResponse.amount,
           payer: flowResponse.payer,
           commerceOrder: flowResponse.commerceOrder,
-          nombre: req.body.nombre || '',
-          empresa: req.body.empresa || '',
-          sitio: req.body.sitio || '',
-          cargo: req.body.cargo || '',
-          email: req.body.email || '',
           fecha: FieldValue.serverTimestamp()
         }, { merge: true });
-        console.log('[Flow Confirm] Guardado en Firestore:', flowResponse.commerceOrder);
+        console.log('[Flow Confirm] Guardado en Firestore:', flowResponse.commerceOrder + '-' + statusStr);
       } catch (e) {
         console.error('[Flow Confirm][Firestore Error]', e);
         // NO lanzar error, solo loguear
@@ -184,7 +183,12 @@ exports.getFlowStatus = async (req, res) => {
         console.error('[❌ Error actualizando datos de formulario en Firestore]', e);
       }
     }
-    res.json({ ...response.data, buyOrder }); // Incluye el buyOrder en la respuesta
+    // Antes de responder, fuerza status a número si existe
+    let responseData = { ...response.data, buyOrder };
+    if (typeof responseData.status !== 'undefined') {
+      responseData.status = Number(responseData.status);
+    }
+    res.json(responseData); // Incluye el buyOrder en la respuesta
   } catch (err) {
     console.error('[Flow][Status] Error:', err.message);
     if (err.response) {

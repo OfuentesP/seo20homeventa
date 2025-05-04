@@ -25,7 +25,7 @@
       <p>Estado entregado por el medio de pago: <strong>{{ resultado.status }}</strong></p>
     </div>
     <div v-else-if="estado === 'error'" class="text-red-600 mt-10">
-      <p class="text-xl font-semibold mb-2">❌ Error al procesar el pago</p>
+      <p class="text-xl font-semibold mb-2">❌ Error al procesar el pago 1.2</p>
       <p>{{ resultado.mensaje }}</p>
     </div>
     <div v-else-if="estado === 'anulado'" class="text-yellow-600 mt-10">
@@ -127,7 +127,7 @@ onMounted(async () => {
         return
       }
 
-      if (data?.status === 2) {
+      if (data?.status === 2 || data?.status === '2') {
         estado.value = 'exito'
         resultado.value = { mensaje: '¡Pago aprobado!', ...data }
         await guardarEnFirebase(buyOrder, {
@@ -135,7 +135,7 @@ onMounted(async () => {
           detalles: data,
           estado: estado.value
         }, form)
-      } else if (data?.status === 3) {
+      } else if (data?.status === 3 || data?.status === '3') {
         estado.value = 'rechazado'
         resultado.value = { mensaje: 'Pago rechazado.', ...data }
         await guardarEnFirebase(buyOrder, {
@@ -143,7 +143,7 @@ onMounted(async () => {
           detalles: data,
           estado: estado.value
         }, form)
-      } else if (data?.status === 4) {
+      } else if (data?.status === 4 || data?.status === '4') {
         estado.value = 'anulado'
         resultado.value = { mensaje: 'Pago anulado por el usuario.', ...data }
         await guardarEnFirebase(buyOrder, {
