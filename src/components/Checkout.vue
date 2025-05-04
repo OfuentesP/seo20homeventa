@@ -81,7 +81,9 @@ async function iniciarPagoFlow() {
       })
     });
     const data = await res.json();
-    if (data.url) {
+    if (data.url && data.token) {
+      window.location.href = `${data.url}?token=${data.token}`;
+    } else if (data.url) {
       window.location.href = data.url;
     } else {
       alert('Error al iniciar pago con Flow');
