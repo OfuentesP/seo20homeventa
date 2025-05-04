@@ -2,7 +2,7 @@ const axios = require('axios');
 const crypto = require('crypto');
 const qs = require('querystring');
 const admin = require('../firebase');
-const { getFirestore, doc, setDoc, serverTimestamp } = require('firebase-admin/firestore');
+const { getFirestore, setDoc, serverTimestamp } = require('firebase-admin/firestore');
 
 const FLOW_API_URL = 'https://www.flow.cl/api/payment/create';
 const FLOW_STATUS_URL = 'https://www.flow.cl/api/payment/getStatus';
@@ -102,9 +102,11 @@ exports.confirmFlowPayment = async (req, res) => {
     // Guarda en Firestore si commerceOrder está presente
     if (response.data.commerceOrder) {
       try {
+        const db = getFirestore();
         const detalles = response.data;
         const paymentData = detalles.paymentData || {};
-        await setDoc(doc(getFirestore(), 'solicitudes', detalles.commerceOrder), {
+        const ref = db.collection('solicitudes').doc(detalles.commerceOrder);
+        await setDoc(ref, {
           tipo: 'Flow',
           estado: detalles.status === 2 ? 'exito' : detalles.status === 3 ? 'rechazado' : detalles.status === 4 ? 'anulado' : 'otro',
           amount: detalles.amount || paymentData.amount,
@@ -116,7 +118,6 @@ exports.confirmFlowPayment = async (req, res) => {
           fee: paymentData.fee,
           balance: paymentData.balance,
           taxes: paymentData.taxes,
-          // Si el frontend envía datos del formulario en la confirmación, guárdalos también
           nombre: req.body.nombre || '',
           email: req.body.email || detalles.payer || '',
           sitio: req.body.sitio || '',
@@ -128,6 +129,7 @@ exports.confirmFlowPayment = async (req, res) => {
         console.log('[Flow Confirm] Guardado en Firestore:', detalles.commerceOrder);
       } catch (e) {
         console.error('[Flow Confirm][Firestore Error]', e);
+        // NO lanzar error, solo loguear
       }
     }
 
@@ -157,7 +159,8 @@ exports.getFlowStatus = async (req, res) => {
       try {
         const estado = response.data.status === 'FAILED' ? 'rechazado' : 'anulado';
         console.log(`[Flow][Status] Guardando en Firestore como ${estado}`, buyOrder);
-        await setDoc(doc(getFirestore(), 'solicitudes', buyOrder), {
+        const ref = getFirestore().collection('solicitudes').doc(buyOrder);
+        await setDoc(ref, {
           tipo: 'Flow',
           detalles: response.data,
           estado: estado,
