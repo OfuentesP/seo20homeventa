@@ -139,8 +139,13 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: tbk_token, buyOrder, ...form })
         })
-        const data = await res.json()
-        if (typeof data.status !== 'undefined') {
+        let data = null
+        try {
+          data = await res.json()
+        } catch (e) {
+          console.error('[❌ Error parseando JSON de Flow]', e)
+        }
+        if (typeof data?.status !== 'undefined') {
           // Flow: status numérico
           if (data.status === 2) {
             estado.value = 'exito'
@@ -160,6 +165,21 @@
             detalles: data,
             estado: estado.value
           })
+        } else {
+          // Si hubo error HTTP pero el JSON tiene status 2, igual muestra éxito
+          if (data && data.status === 2) {
+            estado.value = 'exito'
+            resultado.value = { mensaje: '¡Pago aprobado!', ...data }
+            await guardarEnFirebase(buyOrder, {
+              tipo: 'Flow',
+              detalles: data,
+              estado: estado.value
+            })
+          } else {
+            estado.value = 'error'
+            resultado.value = { mensaje: 'No se pudo determinar el estado del pago.', ...data }
+          }
+          console.error('[❌ Error HTTP o JSON de Flow]', res.status, data)
         }
       } catch (err) {
         console.error('[❌ Error consultando estado de Flow]', err)

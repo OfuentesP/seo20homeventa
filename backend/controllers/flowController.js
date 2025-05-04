@@ -105,30 +105,16 @@ exports.confirmFlowPayment = async (req, res) => {
     if (flowResponse.commerceOrder) {
       try {
         const db = getFirestore();
-        const detalles = flowResponse;
-        const paymentData = detalles.paymentData || {};
-        const ref = db.collection('solicitudes').doc(detalles.commerceOrder);
-        await setDoc(ref, {
+        const ref = db.collection('solicitudes').doc(flowResponse.commerceOrder);
+        await ref.set({
           tipo: 'Flow',
-          estado: detalles.status === 2 ? 'exito' : detalles.status === 3 ? 'rechazado' : detalles.status === 4 ? 'anulado' : 'otro',
-          amount: detalles.amount || paymentData.amount,
-          payer: detalles.payer,
-          flowOrder: detalles.flowOrder,
-          commerceOrder: detalles.commerceOrder,
-          paymentMedia: paymentData.media,
-          paymentDate: paymentData.date,
-          fee: paymentData.fee,
-          balance: paymentData.balance,
-          taxes: paymentData.taxes,
-          nombre: req.body.nombre || '',
-          email: req.body.email || detalles.payer || '',
-          sitio: req.body.sitio || '',
-          empresa: req.body.empresa || '',
-          cargo: req.body.cargo || '',
-          detalles: detalles,
+          estado: flowResponse.status === 2 ? 'exito' : flowResponse.status === 3 ? 'rechazado' : flowResponse.status === 4 ? 'anulado' : 'otro',
+          amount: flowResponse.amount,
+          payer: flowResponse.payer,
+          commerceOrder: flowResponse.commerceOrder,
           fecha: FieldValue.serverTimestamp()
         }, { merge: true });
-        console.log('[Flow Confirm] Guardado en Firestore:', detalles.commerceOrder);
+        console.log('[Flow Confirm] Guardado en Firestore:', flowResponse.commerceOrder);
       } catch (e) {
         console.error('[Flow Confirm][Firestore Error]', e);
         // NO lanzar error, solo loguear
@@ -138,7 +124,6 @@ exports.confirmFlowPayment = async (req, res) => {
     res.json(flowResponse);
   } catch (err) {
     console.error('[Flow Confirm Error]', err);
-    // Si ya tenemos respuesta de Flow, igual la enviamos al frontend
     if (flowResponse) {
       return res.json(flowResponse);
     }
