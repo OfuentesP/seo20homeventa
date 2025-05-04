@@ -1,5 +1,5 @@
 <template>
-  <p>1.5</p>
+  <p>1.6</p>
   <div class="max-w-2xl mx-auto py-20 px-6 text-center">
     <h1 class="text-3xl font-bold mb-4" v-if="estado === 'exito'">
       <span role="img" aria-label="pago confirmado">✅</span> ¡Pago confirmado con Flow!
@@ -55,6 +55,9 @@ import { doc, getDoc } from 'firebase/firestore'
 
 const estado = ref('cargando')
 const resultado = ref(null)
+const pollingInterval = 4000 // ms
+let pollingTimer = null
+let pollingCount = 0
 
 async function consultarEstadoEnFirestore(buyOrder) {
   if (!buyOrder) return null
@@ -64,6 +67,46 @@ async function consultarEstadoEnFirestore(buyOrder) {
     return docSnap.data()
   } else {
     return null
+  }
+}
+
+async function consultaYActualiza(buyOrder, isPolling = false) {
+  if (isPolling) {
+    pollingCount++
+    console.log(`[🔁 Polling #${pollingCount}] Consultando Firestore para buyOrder:`, buyOrder)
+  }
+  const startTime = Date.now()
+  const datos = await consultarEstadoEnFirestore(buyOrder)
+  const elapsed = Date.now() - startTime
+  console.log(`[⏱️ Confirmación] Consulta a Firestore tomó ${elapsed} ms (polling: ${isPolling})`)
+  console.log('[🧩 Confirmación] Resultado de consultarEstadoEnFirestore:', datos)
+
+  if (!datos) {
+    estado.value = 'esperando'
+    resultado.value = { mensaje: 'Esperando confirmación de pago...' }
+    if (isPolling) {
+      console.warn(`[⏳ Polling #${pollingCount}] Documento no encontrado en Firestore para buyOrder:`, buyOrder)
+    }
+    return false
+  }
+  resultado.value = datos
+  console.log('[✅ Confirmación] Documento Firestore:', datos)
+  if (datos.estado === 'exito') {
+    estado.value = 'exito'
+    console.log('[🎉 Confirmación] Pago exitoso para buyOrder:', buyOrder)
+    return true
+  } else if (datos.estado === 'rechazado') {
+    estado.value = 'rechazado'
+    console.warn('[⚠️ Confirmación] Pago rechazado para buyOrder:', buyOrder)
+    return true
+  } else if (datos.estado === 'anulado') {
+    estado.value = 'anulado'
+    console.warn('[⚠️ Confirmación] Pago anulado para buyOrder:', buyOrder)
+    return true
+  } else {
+    estado.value = 'esperando'
+    console.log('[⏳ Confirmación] Estado aún no definido para buyOrder:', buyOrder, 'Estado:', datos.estado)
+    return false
   }
 }
 
@@ -82,32 +125,16 @@ onMounted(async () => {
   }
 
   estado.value = 'cargando'
-  const startTime = Date.now()
   try {
-    const datos = await consultarEstadoEnFirestore(buyOrder)
-    const elapsed = Date.now() - startTime
-    console.log(`[⏱️ Confirmación] Consulta a Firestore tomó ${elapsed} ms`)
-
-    if (!datos) {
-      estado.value = 'esperando'
-      resultado.value = { mensaje: 'Esperando confirmación de pago...' }
-      console.warn('[⏳ Confirmación] Documento no encontrado en Firestore para buyOrder:', buyOrder)
-      return
-    }
-    resultado.value = datos
-    console.log('[✅ Confirmación] Documento Firestore:', datos)
-    if (datos.estado === 'exito') {
-      estado.value = 'exito'
-      console.log('[🎉 Confirmación] Pago exitoso para buyOrder:', buyOrder)
-    } else if (datos.estado === 'rechazado') {
-      estado.value = 'rechazado'
-      console.warn('[⚠️ Confirmación] Pago rechazado para buyOrder:', buyOrder)
-    } else if (datos.estado === 'anulado') {
-      estado.value = 'anulado'
-      console.warn('[⚠️ Confirmación] Pago anulado para buyOrder:', buyOrder)
-    } else {
-      estado.value = 'esperando'
-      console.log('[⏳ Confirmación] Estado aún no definido para buyOrder:', buyOrder, 'Estado:', datos.estado)
+    const finalizado = await consultaYActualiza(buyOrder)
+    if (!finalizado) {
+      pollingTimer = setInterval(async () => {
+        const done = await consultaYActualiza(buyOrder, true)
+        if (done) {
+          clearInterval(pollingTimer)
+          console.log('[🛑 Polling] Estado final detectado, deteniendo polling.')
+        }
+      }, pollingInterval)
     }
   } catch (e) {
     estado.value = 'error'
