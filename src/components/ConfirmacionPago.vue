@@ -1,5 +1,5 @@
 <template>
-  <p>1.6</p>
+  <p>1.7</p>
   <div class="max-w-2xl mx-auto py-20 px-6 text-center">
     <h1 class="text-3xl font-bold mb-4" v-if="estado === 'exito'">
       <span role="img" aria-label="pago confirmado">✅</span> ¡Pago confirmado con Flow!
@@ -56,18 +56,23 @@ import { doc, getDoc } from 'firebase/firestore'
 const estado = ref('cargando')
 const resultado = ref(null)
 const pollingInterval = 4000 // ms
+const pollingMaxTries = 30 // 2 minutos
 let pollingTimer = null
 let pollingCount = 0
 
 async function consultarEstadoEnFirestore(buyOrder) {
   if (!buyOrder) return null
-  const docRef = doc(db, 'solicitudes', buyOrder)
-  const docSnap = await getDoc(docRef)
-  if (docSnap.exists()) {
-    return docSnap.data()
-  } else {
-    return null
+  const estados = ['-exito', '-rechazado', '-anulado', '']
+  for (const sufijo of estados) {
+    const docId = buyOrder + sufijo
+    const docRef = doc(db, 'solicitudes', docId)
+    const docSnap = await getDoc(docRef)
+    console.log(`[🔍 Firestore] Buscando documento: ${docId} => exists: ${docSnap.exists()}`)
+    if (docSnap.exists()) {
+      return docSnap.data()
+    }
   }
+  return null
 }
 
 async function consultaYActualiza(buyOrder, isPolling = false) {
@@ -129,6 +134,13 @@ onMounted(async () => {
     const finalizado = await consultaYActualiza(buyOrder)
     if (!finalizado) {
       pollingTimer = setInterval(async () => {
+        if (pollingCount >= pollingMaxTries) {
+          clearInterval(pollingTimer)
+          estado.value = 'timeout'
+          resultado.value = { mensaje: 'No pudimos confirmar tu pago automáticamente. Por favor, contáctanos o recarga la página más tarde.' }
+          console.error('[⏰ Polling] Se alcanzó el límite de intentos de polling. Timeout.')
+          return
+        }
         const done = await consultaYActualiza(buyOrder, true)
         if (done) {
           clearInterval(pollingTimer)
