@@ -86,7 +86,7 @@ exports.confirmFlowPayment = async (req, res) => {
 
     if (!token) {
       console.error('[Flow Confirm Error] Token no encontrado');
-      return res.status(400).send('Token no válido');
+      return res.status(400).json({ error: 'Token no válido' });
     }
 
     const params = {
@@ -96,11 +96,45 @@ exports.confirmFlowPayment = async (req, res) => {
     params.s = signParams(params, SECRET_KEY);
     const response = await axios.get(FLOW_STATUS_URL, { params });
     console.log('[Flow Confirm] Estado recibido:', response.data);
-    // Aquí puedes guardar el estado del pago en tu base de datos o Firestore
-    res.send('OK');
+
+    // Guarda en Firestore si commerceOrder está presente
+    if (response.data.commerceOrder) {
+      try {
+        const { getFirestore, doc, setDoc, serverTimestamp } = require('firebase-admin/firestore');
+        const db = getFirestore();
+        const detalles = response.data;
+        const paymentData = detalles.paymentData || {};
+        await setDoc(doc(db, 'solicitudes', detalles.commerceOrder), {
+          tipo: 'Flow',
+          estado: detalles.status === 2 ? 'exito' : detalles.status === 3 ? 'rechazado' : detalles.status === 4 ? 'anulado' : 'otro',
+          amount: detalles.amount || paymentData.amount,
+          payer: detalles.payer,
+          flowOrder: detalles.flowOrder,
+          commerceOrder: detalles.commerceOrder,
+          paymentMedia: paymentData.media,
+          paymentDate: paymentData.date,
+          fee: paymentData.fee,
+          balance: paymentData.balance,
+          taxes: paymentData.taxes,
+          // Si el frontend envía datos del formulario en la confirmación, guárdalos también
+          nombre: req.body.nombre || '',
+          email: req.body.email || detalles.payer || '',
+          sitio: req.body.sitio || '',
+          empresa: req.body.empresa || '',
+          cargo: req.body.cargo || '',
+          detalles: detalles,
+          fecha: serverTimestamp()
+        }, { merge: true });
+        console.log('[Flow Confirm] Guardado en Firestore:', detalles.commerceOrder);
+      } catch (e) {
+        console.error('[Flow Confirm][Firestore Error]', e);
+      }
+    }
+
+    res.json(response.data);
   } catch (err) {
     console.error('[Flow Confirm Error]', err);
-    res.status(500).send('Error confirmando pago');
+    res.status(500).json({ error: 'Error confirmando pago', detalle: err.message });
   }
 };
 

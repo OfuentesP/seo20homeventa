@@ -97,6 +97,7 @@
     if (!buyOrder && tbk_token) {
       buyOrder = localStorage.getItem('flow-order-id')
     }
+    const form = JSON.parse(localStorage.getItem('formulario-seo') || '{}')
 
     if (token_ws) {
       // Pago exitoso: consulta y muestra resultado
@@ -137,15 +138,28 @@
         const res = await fetch(`${apiBase}/api/flow/status`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: tbk_token, buyOrder })
+          body: JSON.stringify({ token: tbk_token, buyOrder, ...form })
         })
         const data = await res.json()
-        if (data.status && data.status !== 'AUTHORIZED') {
-          resultado.value = { mensaje: 'El pago fue cancelado o anulado por el usuario.', ...data }
+        if (typeof data.status !== 'undefined') {
+          // Flow: status numérico
+          if (data.status === 2) {
+            estado.value = 'exito'
+            resultado.value = { mensaje: '¡Pago aprobado!', ...data }
+          } else if (data.status === 3) {
+            estado.value = 'rechazado'
+            resultado.value = { mensaje: 'Pago rechazado.', ...data }
+          } else if (data.status === 4) {
+            estado.value = 'anulado'
+            resultado.value = { mensaje: 'Pago anulado por el usuario.', ...data }
+          } else {
+            estado.value = 'error'
+            resultado.value = { mensaje: 'No se pudo determinar el estado del pago.', ...data }
+          }
           await guardarEnFirebase(buyOrder, {
             tipo: 'Flow',
             detalles: data,
-            estado: 'anulado'
+            estado: estado.value
           })
         }
       } catch (err) {
