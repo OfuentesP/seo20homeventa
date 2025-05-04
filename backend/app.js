@@ -16,6 +16,14 @@ app.use(express.json());
 // Monta las rutas bajo /api
 app.use('/api', routes);
 
+// Sirve archivos estáticos del build de Vue (ajusta la ruta si es necesario)
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// Para cualquier otra ruta que no sea API, devuelve index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+
 // Puerto
 const PORT = process.env.PORT || 3000;
 
