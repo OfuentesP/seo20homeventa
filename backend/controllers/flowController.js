@@ -1,5 +1,6 @@
 const axios = require('axios');
 const crypto = require('crypto');
+const qs = require('querystring');
 
 const FLOW_API_URL = 'https://www.flow.cl/api/payment/create';
 const FLOW_STATUS_URL = 'https://www.flow.cl/api/payment/getStatus';
@@ -35,8 +36,21 @@ exports.createFlowPayment = async (req, res) => {
       urlReturn: `${baseUrl}/confirmacion`
     };
     params.s = signParams(params, SECRET_KEY);
+    // Log detallado de los parámetros
+    Object.entries(params).forEach(([k, v]) => {
+      console.log(`[Flow][param] ${k}:`, v);
+    });
+    // Validación rápida
+    const missing = Object.entries(params).filter(([k, v]) => v === undefined || v === null || v === '').map(([k]) => k);
+    if (missing.length) {
+      console.error('[Flow][ERROR] Faltan parámetros:', missing);
+    }
     console.log('[Flow] Intentando crear pago con params:', params);
-    const response = await axios.post(FLOW_API_URL, null, { params });
+    const response = await axios.post(
+      FLOW_API_URL,
+      qs.stringify(params),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
     console.log('[Flow] Respuesta de Flow:', response.data);
     res.json({ ...response.data, orderId });
   } catch (err) {
