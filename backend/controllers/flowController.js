@@ -1,8 +1,8 @@
 const axios = require('axios');
 const crypto = require('crypto');
 
-const FLOW_API_URL = 'https://sandbox.flow.cl/api/payment/create';
-const FLOW_STATUS_URL = 'https://sandbox.flow.cl/api/payment/getStatus';
+const FLOW_API_URL = 'https://www.flow.cl/api/payment/create';
+const FLOW_STATUS_URL = 'https://www.flow.cl/api/payment/getStatus';
 const API_KEY = process.env.FLOW_API_KEY || 'TU_API_KEY_SANDBOX';
 const SECRET_KEY = process.env.FLOW_SECRET_KEY || 'TU_SECRET_KEY_SANDBOX';
 
