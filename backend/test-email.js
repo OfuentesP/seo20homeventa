@@ -40,9 +40,13 @@ async function testEmail() {
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.error('[Error al enviar correo]', error);
+        console.error('[❌ Error al enviar correo]', error);
       } else {
-        console.log('[Correo enviado]', info.response);
+        console.log('[✅ Correo enviado correctamente]');
+        console.log('  Mensaje ID:', info.messageId);
+        console.log('  Respuesta SMTP:', info.response);
+        console.log('  Destinatario:', mailOptions.to);
+        console.log('  Asunto:', mailOptions.subject);
       }
     });
 
