@@ -3,11 +3,21 @@ const crypto = require('crypto');
 const qs = require('querystring');
 const admin = require('../firebase');
 const { getFirestore, setDoc, FieldValue } = require('firebase-admin/firestore');
+const nodemailer = require('nodemailer');
 
 const FLOW_API_URL = 'https://www.flow.cl/api/payment/create';
 const FLOW_STATUS_URL = 'https://www.flow.cl/api/payment/getStatus';
 const API_KEY = process.env.FLOW_API_KEY || 'TU_API_KEY_SANDBOX';
 const SECRET_KEY = process.env.FLOW_SECRET_KEY || 'TU_SECRET_KEY_SANDBOX';
+
+// Configuración del transporter de nodemailer para Gmail
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'obfuentesp@gmail.com', // Reemplaza con tu email
+    pass: 'eodd wevm oprc eppu '     // Reemplaza con tu contraseña de aplicación de Gmail
+  }
+});
 
 function signParams(params, secretKey) {
   const keys = Object.keys(params).sort();
@@ -119,6 +129,24 @@ exports.confirmFlowPayment = async (req, res) => {
           commerceOrder: flowResponse.commerceOrder,
           fecha: FieldValue.serverTimestamp()
         }, { merge: true });
+
+        // Enviar correo de notificación si el pago fue exitoso
+        if (statusStr === 'exito') {
+          const mailOptions = {
+            from: 'tu_email@gmail.com',
+            to: 'tu_email@gmail.com', // Reemplaza con tu email
+            subject: 'Nueva solicitud de informe SEO confirmada',
+            text: `Se ha confirmado un nuevo pago con Flow.\n\nDetalles:\n- Orden: ${flowResponse.commerceOrder}\n- Monto: ${flowResponse.amount}\n- Cliente: ${datosForm.nombre || 'No especificado'}\n- Email: ${datosForm.email || 'No especificado'}`
+          };
+
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.error('[Error al enviar correo]', error);
+            } else {
+              console.log('[Correo enviado]', info.response);
+            }
+          });
+        }
       } catch (e) {
         console.error('[Firestore Error - Confirmación]', e);
       }
