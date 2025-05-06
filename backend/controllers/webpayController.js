@@ -1,4 +1,5 @@
 const { WebpayPlus, IntegrationApiKeys, IntegrationCommerceCodes, Environment } = require('transbank-sdk');
+const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 
 // ✅ Configuración correcta
 WebpayPlus.configureForIntegration(
@@ -45,7 +46,34 @@ exports.commitTransaction = async (req, res) => {
     const response = await new WebpayPlus.Transaction().commit(token_ws);
     console.log('[✅ Commit Webpay]', response.status, response.buy_order);
 
-    res.json({ status: response.status, ...response });
+    // Guardar en Firestore
+    try {
+      const db = getFirestore();
+      let estado = 'rechazado';
+      if (response.status === 'AUTHORIZED' || response.status === 'SUCCESS') {
+        estado = 'exito';
+      } else if (response.status === 'ANULADA' || response.status === 'CANCELED') {
+        estado = 'anulado';
+      }
+      await db.collection('solicitudes').doc(response.buy_order + '-' + estado).set({
+        tipo: 'Webpay',
+        estado,
+        amount: response.amount,
+        buyOrder: response.buy_order,
+        sessionId: response.session_id,
+        cardDetail: response.card_detail,
+        accountingDate: response.accounting_date,
+        transactionDate: response.transaction_date,
+        authorizationCode: response.authorization_code,
+        paymentTypeCode: response.payment_type_code,
+        response: response,
+        fecha: FieldValue.serverTimestamp()
+      }, { merge: true });
+    } catch (e) {
+      console.error('[Firestore Error - Webpay Commit]', e);
+    }
+
+    res.json({ status: response.status, buyOrder: response.buy_order, ...response });
   } catch (error) {
     console.error('[❌ Webpay Commit Error]', error);
     res.status(500).json({ error: error.message });

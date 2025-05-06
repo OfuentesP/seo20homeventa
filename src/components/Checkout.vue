@@ -40,6 +40,11 @@ async function iniciarPago() {
       throw new Error('Datos de pago inválidos recibidos.');
     }
 
+    // Guarda el buyOrder en localStorage antes de redirigir
+    if (data.buyOrder) {
+      localStorage.setItem('buyOrder', data.buyOrder);
+    }
+
     window.location.href = `${data.url}?token_ws=${data.token}`;
   } catch (err) {
     console.error('[❌ Error al generar el pago]', err);
@@ -201,8 +206,8 @@ useHead({
               <button :disabled="loading" @click="iniciarPagoFlow" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-lg py-4 rounded-xl flex items-center justify-center w-full transition">
                 Pagar con Flow
               </button>
-              <button disabled class="bg-emerald-400 text-white font-semibold text-lg py-4 rounded-xl flex items-center justify-center w-full transition opacity-60 cursor-not-allowed">
-                Webpay Plus <span class="ml-2 text-xs font-normal">(Próximamente)</span>
+              <button :disabled="loading" @click="iniciarPago" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg py-4 rounded-xl flex items-center justify-center w-full transition">
+                Pagar con Webpay
               </button>
             </div>
           </div>
