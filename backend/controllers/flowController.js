@@ -38,6 +38,17 @@ function getEstadoFromStatus(status) {
   }
 }
 
+async function getUsdToClp() {
+  try {
+    const res = await axios.get('https://mindicador.cl/api/dolar');
+    return res.data.serie[0].valor;
+  } catch (e) {
+    console.error('[Error obteniendo USD/CLP]', e);
+    // Valor de respaldo si la API falla
+    return 950;
+  }
+}
+
 exports.createFlowPayment = async (req, res) => {
   try {
     const { nombre, email, sitio, empresa, cargo } = req.body;
@@ -47,12 +58,16 @@ exports.createFlowPayment = async (req, res) => {
 
     const emailLimpio = (email || '').trim();
 
+    const usdAmount = 20;
+    const usdToClp = await getUsdToClp();
+    const amount = Math.round(usdAmount * usdToClp);
+
     const params = {
       apiKey: API_KEY,
       commerceOrder: orderId,
       subject: 'Informe SEO Técnico',
       currency: 'CLP',
-      amount: 20000,
+      amount: amount,
       email: emailLimpio,
       urlConfirmation: `${baseUrl}/api/flow/confirm`,
       urlReturn: `${baseUrl}/confirmacion`
@@ -74,13 +89,16 @@ exports.createFlowPayment = async (req, res) => {
         cargo: cargo || '',
         email: emailLimpio || '',
         estado: 'pendiente',
-        fecha: FieldValue.serverTimestamp()
+        fecha: FieldValue.serverTimestamp(),
+        usdAmount,
+        usdToClp,
+        clpAmount: amount
       }, { merge: true });
     } catch (e) {
       console.error('[Firestore Error - Guardado Pendiente]', e);
     }
 
-    res.json({ ...response.data, orderId });
+    res.json({ ...response.data, orderId, usdAmount, usdToClp, clpAmount: amount });
   } catch (err) {
     console.error('[Flow Error]', err.message);
     res.status(500).json({ error: 'Error al crear pago con Flow', detalle: err.message, flow: err.response?.data });

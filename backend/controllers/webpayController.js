@@ -1,5 +1,6 @@
 const { WebpayPlus, IntegrationApiKeys, IntegrationCommerceCodes, Environment } = require('transbank-sdk');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const axios = require('axios');
 
 // ✅ Configuración correcta
 WebpayPlus.configureForIntegration(
@@ -11,12 +12,25 @@ WebpayPlus.configureForIntegration(
 // 🔍 Ahora sí puedes hacer log
 console.log('[🧪 WebpayPlus]', typeof WebpayPlus.Transaction);
 
+async function getUsdToClp() {
+  try {
+    const res = await axios.get('https://mindicador.cl/api/dolar');
+    return res.data.serie[0].valor;
+  } catch (e) {
+    console.error('[Error obteniendo USD/CLP]', e);
+    // Valor de respaldo si la API falla
+    return 950;
+  }
+}
+
 exports.createTransaction = async (req, res) => {
   try {
     const { nombre, email, sitio } = req.body;
     const buyOrder = 'orden-' + Math.floor(Math.random() * 1000000);
     const sessionId = 'sesion-' + Math.floor(Math.random() * 1000000);
-    const amount = 20000;
+    const usdAmount = 20;
+    const usdToClp = await getUsdToClp();
+    const amount = Math.round(usdAmount * usdToClp);
     const returnUrl = 'https://seo20.dev/confirmacion';
 
     const response = await new WebpayPlus.Transaction().create(
@@ -34,7 +48,10 @@ exports.createTransaction = async (req, res) => {
         email: email || '',
         sitio: sitio || '',
         estado: 'pendiente',
-        fecha: FieldValue.serverTimestamp()
+        fecha: FieldValue.serverTimestamp(),
+        usdAmount,
+        usdToClp,
+        clpAmount: amount
       }, { merge: true });
     } catch (e) {
       console.error('[Firestore Error - Guardado Pendiente Webpay]', e);
@@ -43,7 +60,10 @@ exports.createTransaction = async (req, res) => {
     res.json({
       token: response.token,
       url: response.url,
-      buyOrder
+      buyOrder,
+      usdAmount,
+      usdToClp,
+      clpAmount: amount
     });
   } catch (error) {
     console.error('[❌ Webpay Create Error]', error);
