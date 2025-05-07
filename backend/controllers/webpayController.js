@@ -28,7 +28,7 @@ exports.createTransaction = async (req, res) => {
     const buyOrder = 'orden-' + Math.floor(Math.random() * 1000000);
     const sessionId = 'sesion-' + Math.floor(Math.random() * 1000000);
     const amount = 50; // Monto fijo en CLP
-    const returnUrl = 'https://seo20.dev/confirmacion';
+    const returnUrl = 'https://seo20.dev/es/confirmacion';
 
     const response = await new WebpayPlus.Transaction().create(
       buyOrder,

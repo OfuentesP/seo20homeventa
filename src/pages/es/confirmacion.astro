@@ -1,5 +1,5 @@
 ---
-export const prerender = true;
+export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PaymentConfirmation from '../../components/PaymentConfirmation.astro';
 import { getLangFromURL } from '../../i18n/lang-utils.mjs';
@@ -8,13 +8,30 @@ import type { PaymentStatus } from '../../types';
 const lang = getLangFromURL(Astro.url);
 const t = await import(`../../i18n/${lang}.json`);
 
-// Get payment method and status from URL params
-const paymentMethod = Astro.url.searchParams.get('method') as 'flow' | 'webpay';
-const status = Astro.url.searchParams.get('status') as PaymentStatus;
-const orderId = Astro.url.searchParams.get('orderId');
-const buyOrder = Astro.url.searchParams.get('buyOrder');
+let paymentMethod = Astro.url.searchParams.get('method') as 'flow' | 'webpay';
+let status = Astro.url.searchParams.get('status') as PaymentStatus;
+let orderId = Astro.url.searchParams.get('orderId');
+let buyOrder = Astro.url.searchParams.get('buyOrder');
 
-// Validate required parameters
+// Si viene token_ws, procesar confirmación Webpay
+if (Astro.url.searchParams.has('token_ws')) {
+  const token_ws = Astro.url.searchParams.get('token_ws');
+  const commitRes = await fetch('/api/webpay/commit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token_ws })
+  });
+  if (commitRes.ok) {
+    const data = await commitRes.json();
+    paymentMethod = 'webpay';
+    status = (data.status === 'AUTHORIZED' || data.status === 'SUCCESS') ? 'success' : (data.status === 'ANULADA' || data.status === 'CANCELED' ? 'cancelled' : 'error');
+    buyOrder = data.buy_order;
+  } else {
+    paymentMethod = 'webpay';
+    status = 'error';
+  }
+}
+
 if (!paymentMethod || !status) {
   return Astro.redirect(`/${lang}/checkout`);
 }
