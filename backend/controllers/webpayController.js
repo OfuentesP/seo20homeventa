@@ -13,6 +13,7 @@ console.log('[🧪 WebpayPlus]', typeof WebpayPlus.Transaction);
 
 exports.createTransaction = async (req, res) => {
   try {
+    const { nombre, email, sitio } = req.body;
     const buyOrder = 'orden-' + Math.floor(Math.random() * 1000000);
     const sessionId = 'sesion-' + Math.floor(Math.random() * 1000000);
     const amount = 10000;
@@ -25,9 +26,24 @@ exports.createTransaction = async (req, res) => {
       returnUrl
     );
 
+    // Guardar documento pendiente con los datos del usuario
+    try {
+      const db = getFirestore();
+      await db.collection('solicitudes').doc(buyOrder + '-pendiente').set({
+        nombre: nombre || '',
+        email: email || '',
+        sitio: sitio || '',
+        estado: 'pendiente',
+        fecha: FieldValue.serverTimestamp()
+      }, { merge: true });
+    } catch (e) {
+      console.error('[Firestore Error - Guardado Pendiente Webpay]', e);
+    }
+
     res.json({
       token: response.token,
-      url: response.url
+      url: response.url,
+      buyOrder
     });
   } catch (error) {
     console.error('[❌ Webpay Create Error]', error);
@@ -55,7 +71,20 @@ exports.commitTransaction = async (req, res) => {
       } else if (response.status === 'ANULADA' || response.status === 'CANCELED') {
         estado = 'anulado';
       }
+
+      // Buscar datos del usuario en el documento pendiente (igual que Flow)
+      let datosUsuario = {};
+      try {
+        const pendienteDoc = await db.collection('solicitudes').doc(response.buy_order + '-pendiente').get();
+        if (pendienteDoc.exists) {
+          datosUsuario = pendienteDoc.data();
+        }
+      } catch (e) {
+        console.error('[Firestore Error - Buscar Pendiente Webpay]', e);
+      }
+
       await db.collection('solicitudes').doc(response.buy_order + '-' + estado).set({
+        ...datosUsuario,
         tipo: 'Webpay',
         estado,
         amount: response.amount,
@@ -73,7 +102,7 @@ exports.commitTransaction = async (req, res) => {
       console.error('[Firestore Error - Webpay Commit]', e);
     }
 
-    res.json({ status: response.status, buyOrder: response.buy_order, ...response });
+    res.json(response);
   } catch (error) {
     console.error('[❌ Webpay Commit Error]', error);
     res.status(500).json({ error: error.message });

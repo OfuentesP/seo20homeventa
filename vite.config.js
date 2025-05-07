@@ -5,7 +5,7 @@ import { createHtmlPlugin } from 'vite-plugin-html'
 // import critical from 'rollup-plugin-critical'
 
 export default defineConfig({
-  base: '/', // ⚠️ Esto asegura que las rutas JS/CSS sean absolutas y no se rompan
+  base: '/', // Asegura rutas absolutas para producción
   plugins: [
     vue(),
     VitePWA({
@@ -35,22 +35,8 @@ export default defineConfig({
       }
     }),
     createHtmlPlugin({
-      minify: true,
-      inject: {
-        tags: [
-          {
-            injectTo: 'head',
-            tag: 'script',
-            attrs: {
-              type: 'module',
-              src: '/src/main.js'
-            }
-          }
-        ]
-      },
-      // Automatiza el truco media="print" para el CSS generado por Vite
-      entry: '/src/main.js',
-      // Puedes agregar más opciones si lo necesitas
+      minify: true
+      // 👇 Eliminamos la inyección manual de /src/main.js para dejar que Vite maneje los scripts optimizados
     })
   ],
   build: {
@@ -62,22 +48,7 @@ export default defineConfig({
           'vue-use': ['@vueuse/core', '@vueuse/head']
         },
       },
-      // plugins: [
-      //   critical({
-      //     criticalUrl: 'http://localhost:4173/',
-      //     criticalBase: './dist/criticalcss/',
-      //     criticalPages: [
-      //       { uri: '', template: 'index' }
-      //     ],
-      //     criticalConfig: {
-      //       penthouse: {
-      //         timeout: 120000,
-      //         renderWaitTime: 1500,
-      //         // chromePath: '/Applications/Chromium.app/Contents/MacOS/Chromium'
-      //       }
-      //     }
-      //   })
-      // ]
+      // Puedes volver a activar el plugin de critical CSS más adelante si lo necesitas
     },
   },
   server: {

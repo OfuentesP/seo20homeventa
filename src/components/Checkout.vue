@@ -26,7 +26,11 @@ async function iniciarPago() {
     const res = await fetch(`${apiBase}/api/webpay/create`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
+      body: JSON.stringify({
+        nombre: datosFormulario.value.nombre,
+        email: datosFormulario.value.email,
+        sitio: datosFormulario.value.sitio
+      })
     });
 
     if (!res.ok) {
