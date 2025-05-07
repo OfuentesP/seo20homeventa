@@ -86,112 +86,114 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </footer>
   </div>
   <script type="module">
-    // Verificar si hay datos en localStorage
-    const datos = JSON.parse(localStorage.getItem('formulario-seo') || '{}');
-    if (!datos.nombre || !datos.email || !datos.sitio) {
-      window.location.href = '/es/solicitud';
-      return;
-    }
-
-    // Mostrar datos del usuario desde localStorage
-    document.getElementById('resumen-nombre').textContent = datos.nombre || '';
-    document.getElementById('resumen-email').textContent = datos.email || '';
-    document.getElementById('resumen-sitio').textContent = datos.sitio || '';
-
-    const btnFlow = document.getElementById('btn-flow');
-    const btnWebpay = document.getElementById('btn-webpay');
-    let loading = false;
-
-    function validarDatos() {
-      return datos.nombre && datos.email && datos.sitio;
-    }
-
-    function setLoading(btn, isLoading) {
-      btn.disabled = isLoading;
-      if (btn === btnFlow) {
-        document.getElementById('loading-flow').classList.toggle('hidden', !isLoading);
-        document.getElementById('text-flow').classList.toggle('hidden', isLoading);
-      } else {
-        document.getElementById('loading-webpay').classList.toggle('hidden', !isLoading);
-        document.getElementById('text-webpay').classList.toggle('hidden', isLoading);
-      }
-    }
-
-    function mostrarError(mensaje) {
-      alert(mensaje);
-      console.error(mensaje);
-    }
-
-    btnFlow.addEventListener('click', async () => {
-      if (loading) return;
-      if (!validarDatos()) {
-        mostrarError('Faltan datos del formulario. Vuelve a la página anterior.');
+    (() => {
+      // Verificar si hay datos en localStorage
+      const datos = JSON.parse(localStorage.getItem('formulario-seo') || '{}');
+      if (!datos.nombre || !datos.email || !datos.sitio) {
         window.location.href = '/es/solicitud';
         return;
       }
-      loading = true;
-      setLoading(btnFlow, true);
-      try {
-        const res = await fetch('/api/flow/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(datos)
-        });
-        if (!res.ok) {
-          throw new Error(`Error HTTP: ${res.status}`);
-        }
-        const data = await res.json();
-        if (data.orderId) {
-          localStorage.setItem('flow-order-id', data.orderId);
-        }
-        if (data.url && data.token) {
-          window.location.href = `${data.url}?token=${data.token}`;
-        } else if (data.url) {
-          window.location.href = data.url;
+
+      // Mostrar datos del usuario desde localStorage
+      document.getElementById('resumen-nombre').textContent = datos.nombre || '';
+      document.getElementById('resumen-email').textContent = datos.email || '';
+      document.getElementById('resumen-sitio').textContent = datos.sitio || '';
+
+      const btnFlow = document.getElementById('btn-flow');
+      const btnWebpay = document.getElementById('btn-webpay');
+      let loading = false;
+
+      function validarDatos() {
+        return datos.nombre && datos.email && datos.sitio;
+      }
+
+      function setLoading(btn, isLoading) {
+        btn.disabled = isLoading;
+        if (btn === btnFlow) {
+          document.getElementById('loading-flow').classList.toggle('hidden', !isLoading);
+          document.getElementById('text-flow').classList.toggle('hidden', isLoading);
         } else {
-          throw new Error('Respuesta inválida del servidor');
+          document.getElementById('loading-webpay').classList.toggle('hidden', !isLoading);
+          document.getElementById('text-webpay').classList.toggle('hidden', isLoading);
         }
-      } catch (err) {
-        mostrarError('Error al conectar con Flow. Por favor, intenta nuevamente.');
-      } finally {
-        loading = false;
-        setLoading(btnFlow, false);
       }
-    });
 
-    btnWebpay.addEventListener('click', async () => {
-      if (loading) return;
-      if (!validarDatos()) {
-        mostrarError('Faltan datos del formulario. Vuelve a la página anterior.');
-        window.location.href = '/es/solicitud';
-        return;
+      function mostrarError(mensaje) {
+        alert(mensaje);
+        console.error(mensaje);
       }
-      loading = true;
-      setLoading(btnWebpay, true);
-      try {
-        const res = await fetch('/api/webpay/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(datos)
-        });
-        if (!res.ok) {
-          throw new Error(`Error HTTP: ${res.status}`);
+
+      btnFlow.addEventListener('click', async () => {
+        if (loading) return;
+        if (!validarDatos()) {
+          mostrarError('Faltan datos del formulario. Vuelve a la página anterior.');
+          window.location.href = '/es/solicitud';
+          return;
         }
-        const data = await res.json();
-        if (!data.url || !data.token) {
-          throw new Error('Datos de pago inválidos recibidos.');
+        loading = true;
+        setLoading(btnFlow, true);
+        try {
+          const res = await fetch('/api/flow/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+          });
+          if (!res.ok) {
+            throw new Error(`Error HTTP: ${res.status}`);
+          }
+          const data = await res.json();
+          if (data.orderId) {
+            localStorage.setItem('flow-order-id', data.orderId);
+          }
+          if (data.url && data.token) {
+            window.location.href = `${data.url}?token=${data.token}`;
+          } else if (data.url) {
+            window.location.href = data.url;
+          } else {
+            throw new Error('Respuesta inválida del servidor');
+          }
+        } catch (err) {
+          mostrarError('Error al conectar con Flow. Por favor, intenta nuevamente.');
+        } finally {
+          loading = false;
+          setLoading(btnFlow, false);
         }
-        if (data.buyOrder) {
-          localStorage.setItem('buyOrder', data.buyOrder);
+      });
+
+      btnWebpay.addEventListener('click', async () => {
+        if (loading) return;
+        if (!validarDatos()) {
+          mostrarError('Faltan datos del formulario. Vuelve a la página anterior.');
+          window.location.href = '/es/solicitud';
+          return;
         }
-        window.location.href = `${data.url}?token_ws=${data.token}`;
-      } catch (err) {
-        mostrarError('Error al conectar con Webpay. Por favor, intenta nuevamente.');
-      } finally {
-        loading = false;
-        setLoading(btnWebpay, false);
-      }
-    });
+        loading = true;
+        setLoading(btnWebpay, true);
+        try {
+          const res = await fetch('/api/webpay/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+          });
+          if (!res.ok) {
+            throw new Error(`Error HTTP: ${res.status}`);
+          }
+          const data = await res.json();
+          if (!data.url || !data.token) {
+            throw new Error('Datos de pago inválidos recibidos.');
+          }
+          if (data.buyOrder) {
+            localStorage.setItem('buyOrder', data.buyOrder);
+          }
+          window.location.href = `${data.url}?token_ws=${data.token}`;
+        } catch (err) {
+          mostrarError('Error al conectar con Webpay. Por favor, intenta nuevamente.');
+        } finally {
+          loading = false;
+          setLoading(btnWebpay, false);
+        }
+      });
+    })();
   </script>
 </BaseLayout> 
 </BaseLayout> 
