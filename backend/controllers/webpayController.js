@@ -27,9 +27,7 @@ exports.createTransaction = async (req, res) => {
     const { nombre, email, sitio } = req.body;
     const buyOrder = 'orden-' + Math.floor(Math.random() * 1000000);
     const sessionId = 'sesion-' + Math.floor(Math.random() * 1000000);
-    const usdAmount = 50;
-    const usdToClp = await getUsdToClp();
-    const amount = Math.round(usdAmount * usdToClp);
+    const amount = 50; // Monto fijo en CLP
     const returnUrl = 'https://seo20.dev/confirmacion';
 
     const response = await new WebpayPlus.Transaction().create(
@@ -48,8 +46,6 @@ exports.createTransaction = async (req, res) => {
         sitio: sitio || '',
         estado: 'pendiente',
         fecha: FieldValue.serverTimestamp(),
-        usdAmount,
-        usdToClp,
         clpAmount: amount
       }, { merge: true });
     } catch (e) {
@@ -60,8 +56,6 @@ exports.createTransaction = async (req, res) => {
       token: response.token,
       url: response.url,
       buyOrder,
-      usdAmount,
-      usdToClp,
       clpAmount: amount
     });
   } catch (error) {
