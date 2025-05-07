@@ -1,65 +1,30 @@
 ---
+export const prerender = true;
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PaymentConfirmation from '../../components/PaymentConfirmation.astro';
-import { getLangFromURL } from '../../i18n/lang-utils.mjs';
-import type { PaymentStatus } from '../../types';
-
-const lang = getLangFromURL(Astro.url);
-const t = await import(`../../i18n/${lang}.json`);
-
-// Get payment method and status from URL params
-const paymentMethod = Astro.url.searchParams.get('method') as 'flow' | 'webpay';
-const status = Astro.url.searchParams.get('status') as PaymentStatus;
-const orderId = Astro.url.searchParams.get('orderId');
-const buyOrder = Astro.url.searchParams.get('buyOrder');
-
-// Validate required parameters
-if (!paymentMethod || !status) {
-  return Astro.redirect(`/${lang}/checkout`);
-}
+import PaymentConfirmation from '../../components/PaymentConfirmation.vue';
+import t_en from '../../i18n/en.json';
+const lang = 'en';
 ---
 
-<BaseLayout title={t.confirmation.title} lang={lang}>
+<BaseLayout title={t_en.confirmation.title} lang={lang}>
   <head slot="head">
-    <meta name="description" content={t.confirmation.metaDescription} />
+    <meta name="description" content={t_en.confirmation.metaDescription} />
     <meta name="robots" content="noindex,follow" />
-    <meta property="og:title" content={t.confirmation.title} />
-    <meta property="og:description" content={t.confirmation.metaDescription} />
+    <meta property="og:title" content={t_en.confirmation.title} />
+    <meta property="og:description" content={t_en.confirmation.metaDescription} />
     <meta property="og:image" content="https://seo20.dev/images/og-auditoria-seo-10.jpg" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={`https://seo20.dev/${lang}/confirmation`} />
     <meta property="og:site_name" content="SEO20.dev" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={t.confirmation.title} />
-    <meta name="twitter:description" content={t.confirmation.metaDescription} />
+    <meta name="twitter:title" content={t_en.confirmation.title} />
+    <meta name="twitter:description" content={t_en.confirmation.metaDescription} />
     <meta name="twitter:image" content="https://seo20.dev/images/twitter-auditoria-seo-10.jpg" />
     <link rel="canonical" href={`/${lang}/confirmation`} />
     <link rel="alternate" hreflang="es" href="/es/confirmacion" />
     <link rel="alternate" hreflang="en" href="/en/confirmation" />
-    
-    <!-- Schema.org markup for payment status -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Order",
-        "orderStatus": {
-          "@type": "OrderStatus",
-          "name": status === 'success' ? 'OrderDelivered' : 
-                 status === 'pending' ? 'OrderProcessing' : 
-                 status === 'error' ? 'OrderCancelled' : 'OrderCancelled'
-        },
-        "orderNumber": paymentMethod === 'flow' ? orderId : buyOrder,
-        "paymentMethod": paymentMethod === 'flow' ? 'Flow' : 'Webpay'
-      }
-    </script>
   </head>
-
   <div class="bg-slate-50 min-h-screen">
-    <PaymentConfirmation
-      paymentMethod={paymentMethod}
-      status={status}
-      orderId={orderId}
-      buyOrder={buyOrder}
-    />
+    <PaymentConfirmation client:load lang="en" />
   </div>
 </BaseLayout> 

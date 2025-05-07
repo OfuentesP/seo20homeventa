@@ -1,83 +1,30 @@
 ---
-export const prerender = false;
+export const prerender = true;
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PaymentConfirmation from '../../components/PaymentConfirmation.astro';
-import { getLangFromURL } from '../../i18n/lang-utils.mjs';
-import type { PaymentStatus } from '../../types';
-
-const lang = getLangFromURL(Astro.url);
-const t = await import(`../../i18n/${lang}.json`);
-
-let paymentMethod = Astro.url.searchParams.get('method') as 'flow' | 'webpay';
-let status = Astro.url.searchParams.get('status') as PaymentStatus;
-let orderId = Astro.url.searchParams.get('orderId');
-let buyOrder = Astro.url.searchParams.get('buyOrder');
-
-// Si viene token_ws, procesar confirmación Webpay
-if (Astro.url.searchParams.has('token_ws')) {
-  const token_ws = Astro.url.searchParams.get('token_ws');
-  const commitRes = await fetch('/api/webpay/commit', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token_ws })
-  });
-  if (commitRes.ok) {
-    const data = await commitRes.json();
-    paymentMethod = 'webpay';
-    status = (data.status === 'AUTHORIZED' || data.status === 'SUCCESS') ? 'success' : (data.status === 'ANULADA' || data.status === 'CANCELED' ? 'cancelled' : 'error');
-    buyOrder = data.buy_order;
-  } else {
-    paymentMethod = 'webpay';
-    status = 'error';
-  }
-}
-
-if (!paymentMethod || !status) {
-  return Astro.redirect(`/${lang}/checkout`);
-}
+import PaymentConfirmation from '../../components/PaymentConfirmation.vue';
+import t_es from '../../i18n/es.json';
+const lang = 'es';
 ---
 
-<BaseLayout title={t.confirmation.title} lang={lang}>
+<BaseLayout title={t_es.confirmation.title} lang={lang}>
   <head slot="head">
-    <meta name="description" content={t.confirmation.metaDescription} />
+    <meta name="description" content={t_es.confirmation.metaDescription} />
     <meta name="robots" content="noindex,follow" />
-    <meta property="og:title" content={t.confirmation.title} />
-    <meta property="og:description" content={t.confirmation.metaDescription} />
+    <meta property="og:title" content={t_es.confirmation.title} />
+    <meta property="og:description" content={t_es.confirmation.metaDescription} />
     <meta property="og:image" content="https://seo20.dev/images/og-auditoria-seo-10.jpg" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={`https://seo20.dev/${lang}/confirmacion`} />
     <meta property="og:site_name" content="SEO20.dev" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={t.confirmation.title} />
-    <meta name="twitter:description" content={t.confirmation.metaDescription} />
+    <meta name="twitter:title" content={t_es.confirmation.title} />
+    <meta name="twitter:description" content={t_es.confirmation.metaDescription} />
     <meta name="twitter:image" content="https://seo20.dev/images/twitter-auditoria-seo-10.jpg" />
     <link rel="canonical" href={`/${lang}/confirmacion`} />
     <link rel="alternate" hreflang="es" href="/es/confirmacion" />
     <link rel="alternate" hreflang="en" href="/en/confirmation" />
-    
-    <!-- Schema.org markup for payment status -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Order",
-        "orderStatus": {
-          "@type": "OrderStatus",
-          "name": status === 'success' ? 'OrderDelivered' : 
-                 status === 'pending' ? 'OrderProcessing' : 
-                 status === 'error' ? 'OrderCancelled' : 'OrderCancelled'
-        },
-        "orderNumber": paymentMethod === 'flow' ? orderId : buyOrder,
-        "paymentMethod": paymentMethod === 'flow' ? 'Flow' : 'Webpay'
-      }
-    </script>
   </head>
-
   <div class="bg-slate-50 min-h-screen">
-    <PaymentConfirmation
-      paymentMethod={paymentMethod}
-      status={status}
-      orderId={orderId}
-      buyOrder={buyOrder}
-    />
+    <PaymentConfirmation client:load />
   </div>
 </BaseLayout> 
