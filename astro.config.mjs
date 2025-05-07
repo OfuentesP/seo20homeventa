@@ -5,16 +5,15 @@ import node from '@astrojs/node';
 
 export default defineConfig({
   site: 'https://seo20.dev',
-  trailingSlash: 'always',
   output: 'server',
-  adapter: node({ mode: 'standalone' }),
+  trailingSlash: 'always',
+  build: {
+    format: 'directory'
+  },
   integrations: [
     tailwind(),
     vue()
   ],
-  build: {
-    format: 'directory'
-  },
   vite: {
     optimizeDeps: {
       exclude: ['@astrojs/tailwind']
@@ -22,5 +21,8 @@ export default defineConfig({
     css: {
       devSourcemap: true
     }
-  }
+  },
+  adapter: node({
+    mode: 'standalone'
+  })
 });
