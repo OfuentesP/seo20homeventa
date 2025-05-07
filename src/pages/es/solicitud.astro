@@ -1,0 +1,247 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getLangFromURL } from '../../i18n/lang-utils.mjs';
+
+const lang = getLangFromURL(Astro.url);
+const t = await import(`../../i18n/${lang}.json`);
+
+const baseUrl = 'https://seo20.dev';
+const canonicalUrl = `${baseUrl}/solicitud`;
+---
+
+<BaseLayout title="Solicita tu Informe SEO Técnico | SEO20.dev" lang={lang}>
+  <head slot="head">
+    <meta name="description" content="Solicita tu informe SEO técnico y recibe en 24h un diagnóstico claro, accionable y sin tecnicismos de tu página de inicio." />
+    <meta name="keywords" content="solicitud informe SEO, análisis SEO, diagnóstico web, optimización SEO, informe técnico, SEO para empresas" />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" hreflang="es" href={canonicalUrl} />
+    <link rel="alternate" hreflang="x-default" href={canonicalUrl} />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Solicita tu Informe SEO Técnico | SEO20.dev" />
+    <meta property="og:description" content="Solicita tu informe SEO técnico y recibe en 24h un diagnóstico claro, accionable y sin tecnicismos de tu página de inicio." />
+    <meta property="og:image" content={`${baseUrl}/images/og-auditoria-seo-10.jpg`} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content="SEO20.dev" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Solicita tu Informe SEO Técnico | SEO20.dev" />
+    <meta name="twitter:description" content="Solicita tu informe SEO técnico y recibe en 24h un diagnóstico claro, accionable y sin tecnicismos de tu página de inicio." />
+    <meta name="twitter:image" content={`${baseUrl}/images/twitter-auditoria-seo-10.jpg`} />
+    
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "serviceType": "Informe SEO Técnico",
+        "provider": {
+          "@type": "Organization",
+          "name": "SEO20.dev",
+          "url": baseUrl
+        },
+        "areaServed": "ES",
+        "description": "Solicita tu informe SEO técnico y recibe en 24h un diagnóstico claro, accionable y sin tecnicismos de tu página de inicio.",
+        "offers": {
+          "@type": "Offer",
+          "price": "20.00",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock",
+          "url": canonicalUrl
+        }
+      }
+    </script>
+  </head>
+
+  <div class="bg-slate-50 min-h-screen flex flex-col justify-between">
+    <main class="flex-1 flex flex-col justify-center">
+      <div class="max-w-2xl mx-auto py-12 px-2 sm:px-4">
+        <div class="bg-white shadow-lg rounded-2xl p-8">
+          <h1 class="text-3xl font-bold mb-2 text-center flex items-center justify-center gap-2">
+            <span class="text-emerald-600 text-4xl">📈</span>
+            Solicita tu Informe SEO
+          </h1>
+          <div class="flex items-center gap-2 justify-center mt-4 mb-2">
+            <span class="text-emerald-500 text-xl">✅</span>
+            <h2 class="text-xl font-semibold">¿Qué analizamos en tu sitio web?</h2>
+          </div>
+          <ul class="list-disc ml-8 mt-2 text-gray-600 space-y-1">
+            <li>Velocidad y experiencia de usuario (Core Web Vitals)</li>
+            <li>Metadatos y títulos optimizados</li>
+            <li>Revisión de indexabilidad</li>
+            <li>Sitemap XML y estructura</li>
+          </ul>
+          <p class="text-center text-gray-600 mb-6 mt-4 text-base">
+            Completa este formulario y en solo 24h te enviaremos un informe SEO técnico de tu página de inicio, claro, accionable y sin tecnicismos.
+          </p>
+          <form id="formulario-seo" class="space-y-6">
+            <div>
+              <label class="block mb-1 font-medium" for="nombre">Nombre y Apellido</label>
+              <input id="nombre" name="nombre" type="text" required autocomplete="name" placeholder="Ej: Juan Pérez" class="w-full border border-gray-300 rounded px-4 py-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition" />
+              <p id="error-nombre" class="text-red-500 text-xs mt-1 hidden"></p>
+            </div>
+            <div>
+              <label class="block mb-1 font-medium" for="sitio">Sitio Web a Analizar</label>
+              <input id="sitio" name="sitio" type="url" required autocomplete="url" placeholder="https://tusitio.com" class="w-full border border-gray-300 rounded px-4 py-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition" />
+              <p id="error-sitio" class="text-red-500 text-xs mt-1 hidden"></p>
+            </div>
+            <div>
+              <label class="block mb-1 font-medium" for="empresa">Nombre de la Empresa <span class="text-gray-400">(opcional)</span></label>
+              <input id="empresa" name="empresa" type="text" autocomplete="organization" placeholder="Ej: Mi Empresa S.A." class="w-full border border-gray-300 rounded px-4 py-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition" />
+              <p id="error-empresa" class="text-red-500 text-xs mt-1 hidden"></p>
+            </div>
+            <div>
+              <label class="block mb-1 font-medium" for="cargo">Cargo en la Empresa <span class="text-gray-400">(opcional)</span></label>
+              <input id="cargo" name="cargo" type="text" autocomplete="organization-title" placeholder="Ej: Gerente de Marketing" class="w-full border border-gray-300 rounded px-4 py-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition" />
+              <p id="error-cargo" class="text-red-500 text-xs mt-1 hidden"></p>
+            </div>
+            <div>
+              <label class="block mb-1 font-medium" for="email">Correo electrónico</label>
+              <input id="email" name="email" type="email" required autocomplete="email" placeholder="Ej: tu@email.com" class="w-full border border-gray-300 rounded px-4 py-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition" />
+              <p id="error-email" class="text-red-500 text-xs mt-1 hidden"></p>
+            </div>
+            <div class="text-center">
+              <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 justify-center w-full mt-2 transition-all">
+                <span>Enviar Solicitud</span>
+              </button>
+              <div class="text-xs text-gray-400 mt-2 text-center">No compartimos tus datos con nadie. Solo los usamos para enviarte el informe.</div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+</BaseLayout>
+
+<script>
+function contieneCodigo(str) {
+  return /<[^>]+>|(script|onerror|onload|alert|function|\{|\}|\$\{|\`)/i.test(str);
+}
+
+function trimAllFields(obj) {
+  const out = {};
+  for (const k in obj) {
+    if (typeof obj[k] === 'string') out[k] = obj[k].trim();
+    else out[k] = obj[k];
+  }
+  return out;
+}
+
+function validarFormulario() {
+  let valido = true;
+  const form = {
+    nombre: document.getElementById('nombre').value,
+    sitio: document.getElementById('sitio').value,
+    empresa: document.getElementById('empresa').value,
+    cargo: document.getElementById('cargo').value,
+    email: document.getElementById('email').value
+  };
+
+  const trimmed = trimAllFields(form);
+
+  // Validar nombre
+  if (/https?:\/\//i.test(trimmed.nombre)) {
+    document.getElementById('error-nombre').textContent = 'El nombre no debe contener una URL.';
+    document.getElementById('error-nombre').classList.remove('hidden');
+    valido = false;
+  } else if (!trimmed.nombre) {
+    document.getElementById('error-nombre').textContent = 'El nombre es obligatorio.';
+    document.getElementById('error-nombre').classList.remove('hidden');
+    valido = false;
+  } else if (contieneCodigo(trimmed.nombre)) {
+    document.getElementById('error-nombre').textContent = 'No se permite código en el nombre.';
+    document.getElementById('error-nombre').classList.remove('hidden');
+    valido = false;
+  } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s.'-]{3,60}$/.test(trimmed.nombre)) {
+    document.getElementById('error-nombre').textContent = 'El nombre debe tener entre 3 y 60 letras y solo caracteres válidos.';
+    document.getElementById('error-nombre').classList.remove('hidden');
+    valido = false;
+  } else {
+    document.getElementById('error-nombre').classList.add('hidden');
+  }
+
+  // Validar sitio web
+  try {
+    const url = new URL(trimmed.sitio);
+    if (!/^https?:/.test(url.protocol)) {
+      document.getElementById('error-sitio').textContent = 'El sitio web debe comenzar con http:// o https://';
+      document.getElementById('error-sitio').classList.remove('hidden');
+      valido = false;
+    } else if (/localhost|127\.0\.0\.1|\d+\.\d+\.\d+\.\d+/.test(url.hostname)) {
+      document.getElementById('error-sitio').textContent = 'No se permiten sitios locales o IPs.';
+      document.getElementById('error-sitio').classList.remove('hidden');
+      valido = false;
+    } else if (!/\./.test(url.hostname)) {
+      document.getElementById('error-sitio').textContent = 'El dominio debe contener al menos un punto.';
+      document.getElementById('error-sitio').classList.remove('hidden');
+      valido = false;
+    } else if (contieneCodigo(trimmed.sitio)) {
+      document.getElementById('error-sitio').textContent = 'No se permite código en el sitio web.';
+      document.getElementById('error-sitio').classList.remove('hidden');
+      valido = false;
+    } else {
+      document.getElementById('error-sitio').classList.add('hidden');
+    }
+  } catch {
+    document.getElementById('error-sitio').textContent = 'Ingresa una URL válida (ej: https://tusitio.com)';
+    document.getElementById('error-sitio').classList.remove('hidden');
+    valido = false;
+  }
+
+  // Validar email
+  if (!/^\S+@\S+\.\S+$/.test(trimmed.email)) {
+    document.getElementById('error-email').textContent = 'Ingresa un correo electrónico válido.';
+    document.getElementById('error-email').classList.remove('hidden');
+    valido = false;
+  } else if (trimmed.email.length > 100) {
+    document.getElementById('error-email').textContent = 'El correo no debe superar los 100 caracteres.';
+    document.getElementById('error-email').classList.remove('hidden');
+    valido = false;
+  } else if (contieneCodigo(trimmed.email)) {
+    document.getElementById('error-email').textContent = 'No se permite código en el correo.';
+    document.getElementById('error-email').classList.remove('hidden');
+    valido = false;
+  } else {
+    document.getElementById('error-email').classList.add('hidden');
+  }
+
+  // Validar empresa (opcional)
+  if (trimmed.empresa && (trimmed.empresa.length > 60 || contieneCodigo(trimmed.empresa))) {
+    document.getElementById('error-empresa').textContent = 'Máx. 60 caracteres y sin código.';
+    document.getElementById('error-empresa').classList.remove('hidden');
+    valido = false;
+  } else {
+    document.getElementById('error-empresa').classList.add('hidden');
+  }
+
+  // Validar cargo (opcional)
+  if (trimmed.cargo && (trimmed.cargo.length > 60 || contieneCodigo(trimmed.cargo))) {
+    document.getElementById('error-cargo').textContent = 'Máx. 60 caracteres y sin código.';
+    document.getElementById('error-cargo').classList.remove('hidden');
+    valido = false;
+  } else {
+    document.getElementById('error-cargo').classList.add('hidden');
+  }
+
+  return valido;
+}
+
+document.getElementById('formulario-seo').addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!validarFormulario()) return;
+  
+  const form = {
+    nombre: document.getElementById('nombre').value,
+    sitio: document.getElementById('sitio').value,
+    empresa: document.getElementById('empresa').value,
+    cargo: document.getElementById('cargo').value,
+    email: document.getElementById('email').value
+  };
+
+  const trimmed = trimAllFields(form);
+  localStorage.setItem('formulario-seo', JSON.stringify(trimmed));
+  window.location.href = '/es/checkout';
+});
+</script> 

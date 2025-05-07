@@ -1,0 +1,75 @@
+{
+  "title": "SEO20.dev - Technical SEO Report",
+  "welcome": "Welcome to SEO20.dev!",
+  "description": "Get your technical SEO report in less than 24 hours.",
+  "switch": "Español",
+  "checkout": {
+    "title": "Review and Pay for your Technical SEO Report",
+    "metaDescription": "Review and pay for your technical SEO report. Secure payment with Webpay Plus or Mercado Pago. Receive your report in less than 24h.",
+    "summary": "Order Summary",
+    "basicReport": "Basic SEO Report",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "website": "Website",
+      "nameRequired": "Name is required.",
+      "emailInvalid": "Please enter a valid email.",
+      "websiteInvalid": "Please enter a valid URL (e.g., https://yoursite.com)."
+    },
+    "total": "Total",
+    "price": "$20 USD",
+    "includes": {
+      "title": "What's included in this SEO report?",
+      "items": [
+        "Technical analysis with Lighthouse and Core Web Vitals",
+        "Title, metadata, and HTML structure evaluation",
+        "Sitemap review and key elements for Google",
+        "Actionable and prioritized recommendations"
+      ]
+    },
+    "doubts": {
+      "title": "Questions before paying?",
+      "description": "If you have questions about the report, you can contact us before completing the payment.",
+      "email": "contact@seo20.dev"
+    },
+    "security": "Your data is protected. Payment is processed through secure platforms like Webpay Plus and Mercado Pago.",
+    "delivery": "You will receive your technical SEO report in less than 24 business hours directly to your email.",
+    "payment": {
+      "title": "Select your payment method",
+      "flow": "Pay with Flow",
+      "webpay": "Pay with Webpay"
+    },
+    "errors": {
+      "flow": "Error starting Flow payment",
+      "flowConnection": "Error connecting to Flow",
+      "webpay": "There was an error generating the payment. Check the console for details."
+    }
+  },
+  "confirmation": {
+    "title": "Payment Confirmation",
+    "metaDescription": "Status of your payment and confirmation of your technical SEO report.",
+    "loading": "Checking payment status...",
+    "success": {
+      "title": "Payment Successful!",
+      "message": "Your payment has been processed successfully. You will receive your technical SEO report in less than 24 business hours."
+    },
+    "pending": {
+      "title": "Payment in Process",
+      "message": "Your payment is being processed. We will notify you when it's confirmed."
+    },
+    "error": {
+      "title": "Payment Error",
+      "message": "There was a problem processing your payment. Please try again or contact support."
+    },
+    "timeout": {
+      "title": "Timeout",
+      "message": "The waiting time to confirm the payment has expired. Please verify your payment status or contact support."
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 SEO20.dev — All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact:"
+  }
+} 

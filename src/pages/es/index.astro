@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HomeHero from '../../components/HomeHero.astro';
+import HomeAdvantages from '../../components/HomeAdvantages.astro';
+import HomeCoverage from '../../components/HomeCoverage.astro';
+import HomeExperience from '../../components/HomeExperience.astro';
+import HomeBusiness from '../../components/HomeBusiness.astro';
+import HomeFAQ from '../../components/HomeFAQ.astro';
+import HomeCTA from '../../components/HomeCTA.astro';
+import es from '../../i18n/es.json';
+---
+<BaseLayout title={es.title} lang="es">
+  <head slot="head">
+    <meta name="description" content={es.description} />
+    <link rel="alternate" hreflang="en" href="/en/" />
+    <link rel="alternate" hreflang="es" href="/es/" />
+    <link rel="canonical" href="/es/" />
+  </head>
+  <HomeHero />
+  <HomeAdvantages />
+  <HomeCoverage />
+  <HomeExperience />
+  <HomeBusiness />
+  <HomeFAQ />
+  <HomeCTA />
+</BaseLayout> 

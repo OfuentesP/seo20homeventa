@@ -1,0 +1,75 @@
+{
+  "title": "SEO20.dev - Informe SEO Técnico",
+  "welcome": "¡Bienvenido a SEO20.dev!",
+  "description": "Solicita tu informe SEO técnico en menos de 24 horas.",
+  "switch": "English",
+  "checkout": {
+    "title": "Resumen y Pago de tu Informe SEO Técnico",
+    "metaDescription": "Revisa y paga tu informe SEO técnico. Pago seguro con Webpay Plus o Mercado Pago. Recibe tu informe en menos de 24h.",
+    "summary": "Resumen de tu Compra",
+    "basicReport": "Informe SEO Básico",
+    "form": {
+      "name": "Nombre",
+      "email": "Email",
+      "website": "Sitio web",
+      "nameRequired": "El nombre es obligatorio.",
+      "emailInvalid": "Ingresa un email válido.",
+      "websiteInvalid": "Ingresa una URL válida (ej: https://tusitio.com)."
+    },
+    "total": "Total",
+    "price": "$20 USD",
+    "includes": {
+      "title": "¿Qué incluye este informe SEO?",
+      "items": [
+        "Análisis técnico con Lighthouse y Core Web Vitals",
+        "Evaluación de títulos, metadatos y estructura HTML",
+        "Revisión del sitemap y elementos clave para Google",
+        "Recomendaciones accionables y priorizadas"
+      ]
+    },
+    "doubts": {
+      "title": "¿Dudas antes de pagar?",
+      "description": "Si tienes preguntas sobre el informe, puedes escribirnos antes de completar el pago.",
+      "email": "contacto@seo20.dev"
+    },
+    "security": "Tus datos están protegidos. El pago se realiza mediante plataformas seguras como Webpay Plus y Mercado Pago.",
+    "delivery": "Recibirás tu informe SEO técnico en menos de 24 horas hábiles directamente en tu correo.",
+    "payment": {
+      "title": "Selecciona tu método de pago",
+      "flow": "Pagar con Flow",
+      "webpay": "Pagar con Webpay"
+    },
+    "errors": {
+      "flow": "Error al iniciar pago con Flow",
+      "flowConnection": "Error al conectar con Flow",
+      "webpay": "Hubo un error al generar el pago. Revisa la consola para más detalles."
+    }
+  },
+  "confirmation": {
+    "title": "Confirmación de Pago",
+    "metaDescription": "Estado de tu pago y confirmación de tu informe SEO técnico.",
+    "loading": "Verificando estado del pago...",
+    "success": {
+      "title": "¡Pago Exitoso!",
+      "message": "Tu pago ha sido procesado correctamente. Recibirás tu informe SEO técnico en menos de 24 horas hábiles."
+    },
+    "pending": {
+      "title": "Pago en Proceso",
+      "message": "Tu pago está siendo procesado. Te notificaremos cuando se confirme."
+    },
+    "error": {
+      "title": "Error en el Pago",
+      "message": "Hubo un problema al procesar tu pago. Por favor, intenta nuevamente o contacta a soporte."
+    },
+    "timeout": {
+      "title": "Tiempo de Espera Agotado",
+      "message": "El tiempo de espera para confirmar el pago ha expirado. Por favor, verifica el estado de tu pago o contacta a soporte."
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 SEO20.dev — Todos los derechos reservados.",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos de Servicio",
+    "contact": "Contacto:"
+  }
+} 

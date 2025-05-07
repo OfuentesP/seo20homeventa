@@ -1,0 +1,223 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Resumen y Pago de tu Informe SEO Técnico | SEO20.dev" lang="es">
+  <head slot="head">
+    <meta name="description" content="Revisa y paga tu informe SEO técnico. Pago seguro con Webpay Plus o Mercado Pago. Recibe tu informe en menos de 24h." />
+    <meta name="robots" content="noindex,follow" />
+    <meta property="og:title" content="Resumen y Pago de tu Informe SEO Técnico | SEO20.dev" />
+    <meta property="og:description" content="Revisa y paga tu informe SEO técnico. Pago seguro con Webpay Plus o Mercado Pago. Recibe tu informe en menos de 24h." />
+    <meta property="og:image" content="https://seo20.dev/images/og-auditoria-seo-10.jpg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://seo20.dev/es/checkout" />
+    <meta property="og:site_name" content="SEO20.dev" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Resumen y Pago de tu Informe SEO Técnico | SEO20.dev" />
+    <meta name="twitter:description" content="Revisa y paga tu informe SEO técnico. Pago seguro con Webpay Plus o Mercado Pago. Recibe tu informe en menos de 24h." />
+    <meta name="twitter:image" content="https://seo20.dev/images/twitter-auditoria-seo-10.jpg" />
+    <link rel="canonical" href="/es/checkout" />
+    <link rel="alternate" hreflang="es" href="/es/checkout" />
+    <link rel="alternate" hreflang="en" href="/en/checkout" />
+  </head>
+  <div class="bg-slate-50 min-h-screen flex flex-col justify-between">
+    <main class="flex-1 flex flex-col justify-center">
+      <div class="max-w-2xl mx-auto py-12 px-2 sm:px-4">
+        <div class="bg-white shadow-md rounded-lg p-8">
+          <h1 class="text-3xl font-bold mb-6 text-center flex items-center gap-2 justify-center">
+            <span class="text-emerald-600 text-4xl">📄</span>
+            Resumen de tu Compra
+          </h1>
+          <form id="checkout-form" novalidate>
+            <div class="mb-6">
+              <h2 class="font-semibold text-lg mb-2">Informe SEO Básico</h2>
+              <div class="bg-gray-50 rounded-lg p-4 mb-2">
+                <label class="block mb-2 text-base text-gray-700"><strong>Nombre:</strong>
+                  <input type="text" name="nombre" id="nombre" class="w-full border rounded px-2 py-1" required />
+                  <div id="error-nombre" class="text-red-600 text-sm mt-1"></div>
+                </label>
+                <label class="block mb-2 text-base text-gray-700"><strong>Email:</strong>
+                  <input type="email" name="email" id="email" class="w-full border rounded px-2 py-1" required />
+                  <div id="error-email" class="text-red-600 text-sm mt-1"></div>
+                </label>
+                <label class="block mb-2 text-base text-gray-700"><strong>Sitio web:</strong>
+                  <input type="text" name="sitio" id="sitio" class="w-full border rounded px-2 py-1" required />
+                  <div id="error-sitio" class="text-red-600 text-sm mt-1"></div>
+                </label>
+              </div>
+              <div class="flex justify-between items-center mt-4">
+                <span class="text-xl font-bold">Total</span>
+                <span class="text-xl font-bold">$20 USD</span>
+              </div>
+            </div>
+            <div class="mb-8">
+              <h2 class="text-xl font-semibold mb-4 flex items-center gap-2"><span class="text-emerald-600 text-2xl">✅</span> ¿Qué incluye este informe SEO?</h2>
+              <ul class="text-left space-y-2 text-gray-700 list-disc list-inside">
+                <li class="flex items-center gap-2"><span class="text-emerald-600 text-lg">✔️</span> Análisis técnico con Lighthouse y Core Web Vitals</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-600 text-lg">✔️</span> Evaluación de títulos, metadatos y estructura HTML</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-600 text-lg">✔️</span> Revisión del sitemap y elementos clave para Google</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-600 text-lg">✔️</span> Recomendaciones accionables y priorizadas</li>
+              </ul>
+            </div>
+            <div class="mb-8">
+              <h2 class="text-xl font-semibold mb-2 text-emerald-700">¿Dudas antes de pagar?</h2>
+              <p class="text-gray-700 mb-1">Si tienes preguntas sobre el informe, puedes escribirnos antes de completar el pago.</p>
+              <p class="font-semibold text-emerald-700 flex items-center gap-2"><span class="text-2xl">📧</span> contacto@seo20.dev</p>
+            </div>
+            <div class="mb-8">
+              <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center text-emerald-800 text-base font-medium mb-4">
+                Tus datos están protegidos. El pago se realiza mediante plataformas seguras como Webpay Plus y Mercado Pago.
+              </div>
+              <div class="text-center text-base text-gray-700 mb-4 font-semibold">
+                Recibirás tu informe SEO técnico en menos de 24 horas hábiles directamente en tu correo.
+              </div>
+              <h2 class="text-lg font-bold mb-4">Selecciona tu método de pago</h2>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <button type="button" id="btn-flow" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-lg py-4 rounded-xl flex items-center justify-center w-full transition">
+                  <span id="text-flow">Pagar con Flow</span>
+                  <span id="loading-flow" class="ml-2 hidden"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg></span>
+                </button>
+                <button type="button" id="btn-webpay" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg py-4 rounded-xl flex items-center justify-center w-full transition">
+                  <span id="text-webpay">Pagar con Webpay</span>
+                  <span id="loading-webpay" class="ml-2 hidden"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg></span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+    <footer class="bg-gray-100 text-center text-sm text-gray-600 min-h-[160px] h-[160px] flex flex-col justify-center pt-12">
+      <p>&copy; 2025 SEO20.dev — Todos los derechos reservados.</p>
+      <nav class="mt-2 space-x-4">
+        <a href="/es/politica-privacidad" class="hover:text-emerald-600">Política de Privacidad</a>
+        <a href="/es/terminos-servicio" class="hover:text-emerald-600">Términos de Servicio</a>
+      </nav>
+      <p class="mt-2">Contacto: <a href="mailto:hola@seo20.dev" class="text-emerald-600 hover:underline">hola@seo20.dev</a></p>
+    </footer>
+  </div>
+  <script type="module">
+    const form = document.getElementById('checkout-form');
+    const btnFlow = document.getElementById('btn-flow');
+    const btnWebpay = document.getElementById('btn-webpay');
+    const nombre = document.getElementById('nombre');
+    const email = document.getElementById('email');
+    const sitio = document.getElementById('sitio');
+    const errorNombre = document.getElementById('error-nombre');
+    const errorEmail = document.getElementById('error-email');
+    const errorSitio = document.getElementById('error-sitio');
+    const textFlow = document.getElementById('text-flow');
+    const loadingFlow = document.getElementById('loading-flow');
+    const textWebpay = document.getElementById('text-webpay');
+    const loadingWebpay = document.getElementById('loading-webpay');
+    let loading = false;
+
+    function validarEmail(valor) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor);
+    }
+    function validarSitio(valor) {
+      return /^(https?:\/\/)?([\w\-]+\.)+[\w\-]{2,}(\/.*)?$/.test(valor);
+    }
+    function limpiarErrores() {
+      errorNombre.textContent = '';
+      errorEmail.textContent = '';
+      errorSitio.textContent = '';
+      nombre.classList.remove('border-red-500');
+      email.classList.remove('border-red-500');
+      sitio.classList.remove('border-red-500');
+    }
+    function validarFormulario() {
+      limpiarErrores();
+      let valido = true;
+      if (!nombre.value.trim()) {
+        errorNombre.textContent = 'El nombre es obligatorio.';
+        nombre.classList.add('border-red-500');
+        valido = false;
+      }
+      if (!validarEmail(email.value.trim())) {
+        errorEmail.textContent = 'Ingresa un email válido.';
+        email.classList.add('border-red-500');
+        valido = false;
+      }
+      if (!validarSitio(sitio.value.trim())) {
+        errorSitio.textContent = 'Ingresa una URL válida (ej: https://tusitio.com).';
+        sitio.classList.add('border-red-500');
+        valido = false;
+      }
+      return valido;
+    }
+    function getFormData() {
+      return {
+        nombre: nombre.value.trim(),
+        email: email.value.trim(),
+        sitio: sitio.value.trim()
+      };
+    }
+    function setLoading(btn, isLoading) {
+      btn.disabled = isLoading;
+      if (btn === btnFlow) {
+        loadingFlow.classList.toggle('hidden', !isLoading);
+        textFlow.classList.toggle('hidden', isLoading);
+      } else {
+        loadingWebpay.classList.toggle('hidden', !isLoading);
+        textWebpay.classList.toggle('hidden', isLoading);
+      }
+    }
+    btnFlow.addEventListener('click', async () => {
+      if (loading) return;
+      if (!validarFormulario()) return;
+      loading = true;
+      setLoading(btnFlow, true);
+      const datos = getFormData();
+      try {
+        const res = await fetch('/api/flow/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datos)
+        });
+        const data = await res.json();
+        if (data.orderId) {
+          localStorage.setItem('flow-order-id', data.orderId);
+        }
+        if (data.url && data.token) {
+          window.location.href = `${data.url}?token=${data.token}`;
+        } else if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert('Error al iniciar pago con Flow');
+        }
+      } catch (err) {
+        alert('Error al conectar con Flow');
+      } finally {
+        loading = false;
+        setLoading(btnFlow, false);
+      }
+    });
+    btnWebpay.addEventListener('click', async () => {
+      if (loading) return;
+      if (!validarFormulario()) return;
+      loading = true;
+      setLoading(btnWebpay, true);
+      const datos = getFormData();
+      try {
+        const res = await fetch('/api/webpay/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datos)
+        });
+        const data = await res.json();
+        if (!data.url || !data.token) {
+          throw new Error('Datos de pago inválidos recibidos.');
+        }
+        if (data.buyOrder) {
+          localStorage.setItem('buyOrder', data.buyOrder);
+        }
+        window.location.href = `${data.url}?token_ws=${data.token}`;
+      } catch (err) {
+        alert('Hubo un error al generar el pago. Revisa la consola para más detalles.');
+      } finally {
+        loading = false;
+        setLoading(btnWebpay, false);
+      }
+    });
+  </script>
+</BaseLayout> 

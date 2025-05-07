@@ -1,0 +1,135 @@
+---
+import { getLangFromURL } from '../i18n/lang-utils.mjs';
+import type { PaymentStatus } from '../types';
+
+const lang = getLangFromURL(Astro.url);
+const t = await import(`../i18n/${lang}.json`);
+
+interface Props {
+  paymentMethod: 'flow' | 'webpay';
+  status: PaymentStatus;
+  orderId?: string;
+  buyOrder?: string;
+}
+
+const { paymentMethod, status, orderId, buyOrder } = Astro.props;
+
+function getStatusConfig(status) {
+  if (status === 'success') {
+    return {
+      icon: '✅',
+      title: t.confirmation.success.title,
+      message: t.confirmation.success.message,
+      color: 'text-emerald-600'
+    };
+  }
+  if (status === 'pending') {
+    return {
+      icon: '⏳',
+      title: t.confirmation.pending.title,
+      message: t.confirmation.pending.message,
+      color: 'text-yellow-600'
+    };
+  }
+  if (status === 'error') {
+    return {
+      icon: '❌',
+      title: t.confirmation.error.title,
+      message: t.confirmation.error.message,
+      color: 'text-red-600'
+    };
+  }
+  if (status === 'timeout') {
+    return {
+      icon: '⏰',
+      title: t.confirmation.timeout.title,
+      message: t.confirmation.timeout.message,
+      color: 'text-orange-600'
+    };
+  }
+  return {
+    icon: '❓',
+    title: t.confirmation.error.title,
+    message: t.confirmation.error.message,
+    color: 'text-gray-600'
+  };
+}
+
+const statusConfig = getStatusConfig(status);
+const showPending = status === 'pending';
+const showError = status === 'error';
+const showSuccess = status === 'success';
+---
+
+<div class="max-w-2xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+  <div class="bg-white shadow-lg rounded-lg p-8">
+    <div class="text-center">
+      <span class="text-6xl mb-4 block">{statusConfig.icon}</span>
+      <h1 class={`text-3xl font-bold mb-4 ${statusConfig.color}`}>
+        {statusConfig.title}
+      </h1>
+      <p class="text-gray-600 mb-8">{statusConfig.message}</p>
+      {showPending && (
+        <div class="animate-pulse">
+          <div class="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>
+          <div class="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+        </div>
+      )}
+      {showError && (
+        <div class="mt-6">
+          <a
+            href={`/${lang}/checkout`}
+            class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700"
+          >
+            {t.confirmation.retry}
+          </a>
+        </div>
+      )}
+      {showSuccess && (
+        <div class="mt-6">
+          <p class="text-sm text-gray-500 mb-2">
+            {paymentMethod === 'flow' ? `Order ID: ${orderId}` : `Buy Order: ${buyOrder}`}
+          </p>
+          <p class="text-sm text-gray-500">
+            {t.confirmation.checkEmail}
+          </p>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Polling logic for pending payments
+  const pollPaymentStatus = async () => {
+    const status = document.querySelector('[data-payment-status]')?.getAttribute('data-payment-status');
+    if (status !== 'pending') return;
+
+    const paymentMethod = document.querySelector('[data-payment-method]')?.getAttribute('data-payment-method');
+    const orderId = document.querySelector('[data-order-id]')?.getAttribute('data-order-id');
+    const buyOrder = document.querySelector('[data-buy-order]')?.getAttribute('data-buy-order');
+
+    try {
+      const response = await fetch(`/api/${paymentMethod}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: paymentMethod === 'flow' ? orderId : undefined,
+          buyOrder: paymentMethod === 'webpay' ? buyOrder : undefined
+        })
+      });
+
+      const data = await response.json();
+      if (data.status !== 'pending') {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error checking payment status:', error);
+    }
+  };
+
+  // Start polling if status is pending
+  if (document.querySelector('[data-payment-status="pending"]')) {
+    setInterval(pollPaymentStatus, 5000);
+  }
+</script> 

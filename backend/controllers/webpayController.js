@@ -3,10 +3,9 @@ const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const axios = require('axios');
 
 // ✅ Configuración correcta
-WebpayPlus.configureForIntegration(
-  IntegrationCommerceCodes.WEBPAY_PLUS,
-  IntegrationApiKeys.WEBPAY,
-  Environment.Integration
+WebpayPlus.configureForProduction(
+  '597052965528', // Tbk-Api-Key-Id
+  '6277d7aa-df6a-418c-9bad-bf93d0e09f81'
 );
 
 // 🔍 Ahora sí puedes hacer log
@@ -28,7 +27,7 @@ exports.createTransaction = async (req, res) => {
     const { nombre, email, sitio } = req.body;
     const buyOrder = 'orden-' + Math.floor(Math.random() * 1000000);
     const sessionId = 'sesion-' + Math.floor(Math.random() * 1000000);
-    const usdAmount = 20;
+    const usdAmount = 50;
     const usdToClp = await getUsdToClp();
     const amount = Math.round(usdAmount * usdToClp);
     const returnUrl = 'https://seo20.dev/confirmacion';

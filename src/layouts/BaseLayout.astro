@@ -1,0 +1,71 @@
+---
+import LanguageSwitcher from '../components/LanguageSwitcher.astro';
+import { getLangFromURL } from '../i18n/lang-utils.mjs';
+ import '../styles/global.css';
+
+interface Props {
+  title: string;
+  lang: string;
+}
+
+const { title, lang } = Astro.props;
+const detectedLang = getLangFromURL(Astro.url);
+const t = await import(`../i18n/${detectedLang}.json`);
+
+// Asegurarse de que el idioma en las props coincida con el detectado
+if (lang !== detectedLang) {
+  return Astro.redirect(`/${detectedLang}${Astro.url.pathname.replace(/^\/[a-z]{2}/, '')}`);
+}
+---
+
+<!DOCTYPE html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <slot name="head" />
+    
+    <!-- Preconnect to payment providers -->
+    <link rel="preconnect" href="https://api.flow.cl" />
+    <link rel="preconnect" href="https://webpay3g.transbank.cl" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content={title} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:image" content={`${Astro.url.origin}/og-image.jpg`} />
+    <meta property="og:locale" content={lang === 'es' ? 'es_ES' : 'en_US'} />
+    <meta property="og:locale:alternate" content={lang === 'es' ? 'en_US' : 'es_ES'} />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:image" content={`${Astro.url.origin}/og-image.jpg`} />
+  </head>
+  <body>
+    <LanguageSwitcher />
+    <nav class="bg-slate-900 px-4 py-3 flex items-center justify-between">
+      <a href={lang === 'en' ? '/en/' : '/es/'} class="flex items-center gap-3">
+        <img src="/img/logo-seo-20.webp" alt="Logo SEO20" class="h-10 w-auto" />
+      </a>
+      <a href={lang === 'en' ? '/en/' : '/es/'} class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2 rounded-xl text-base transition shadow">
+        Home
+      </a>
+    </nav>
+    <main>
+      <slot />
+    </main>
+    <footer class="bg-gray-100 text-center text-sm text-gray-600 min-h-[160px] h-[160px] flex flex-col justify-center pt-12">
+      <p>&copy; 2025 SEO20.dev — Todos los derechos reservados.</p>
+      <nav class="mt-2 space-x-4">
+        <a href={lang === 'en' ? '/en/politica-privacidad' : '/es/politica-privacidad'} class="hover:text-emerald-600">Política de Privacidad</a>
+        <a href={lang === 'en' ? '/en/terminos-servicio' : '/es/terminos-servicio'} class="hover:text-emerald-600">Términos de Servicio</a>
+      </nav>
+      <p class="mt-2">Contacto: <a href="mailto:hola@seo20.dev" class="text-emerald-600 hover:underline">hola@seo20.dev</a></p>
+    </footer>
+  </body>
+</html> 
