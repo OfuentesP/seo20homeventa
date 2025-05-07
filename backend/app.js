@@ -2,7 +2,8 @@ require('dotenv').config({ path: __dirname + '/.env' });
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const routesPath = path.resolve('./routes');
+const admin = require('./firebase'); // Agregar Firebase
+const routesPath = path.join(__dirname, 'routes');
 console.log('[📦 Cargando rutas desde]', routesPath);
 
 const routes = require('./routes'); // Solo una vez
@@ -17,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 // Monta las rutas bajo /api
 app.use('/api', routes);
 
-// Sirve archivos estáticos del build de Vue (ajusta la ruta si es necesario)
+// Sirve archivos estáticos del build de Astro
 app.use(express.static(path.join(__dirname, '../dist')));
 
 // Para cualquier otra ruta que no sea API, devuelve index.html
