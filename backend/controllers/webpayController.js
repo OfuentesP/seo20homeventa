@@ -16,7 +16,7 @@ exports.createTransaction = async (req, res) => {
     const { nombre, email, sitio } = req.body;
     const buyOrder = 'orden-' + Math.floor(Math.random() * 1000000);
     const sessionId = 'sesion-' + Math.floor(Math.random() * 1000000);
-    const amount = 10000;
+    const amount = 20000;
     const returnUrl = 'https://seo20.dev/confirmacion';
 
     const response = await new WebpayPlus.Transaction().create(
