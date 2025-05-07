@@ -1,11 +1,10 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import vue from '@astrojs/vue';
-import node from '@astrojs/node';
 
 export default defineConfig({
   site: 'https://seo20.dev',
-  output: 'server',
+  output: 'static',
   trailingSlash: 'always',
   build: {
     format: 'directory'
@@ -21,8 +20,5 @@ export default defineConfig({
     css: {
       devSourcemap: true
     }
-  },
-  adapter: node({
-    mode: 'standalone'
-  })
+  }
 });
