@@ -21,7 +21,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     <link rel="alternate" hreflang="en" href="/en/checkout" />
   </head>
   <div class="bg-slate-50 min-h-screen flex flex-col justify-between">
-    <main class="flex-1 flex flex-col justify-center">
+    <div class="flex-1 flex flex-col justify-center">
       <div class="max-w-2xl mx-auto py-12 px-2 sm:px-4">
         <div class="bg-white shadow-md rounded-lg p-8">
           <h1 class="text-3xl font-bold mb-6 text-center flex items-center gap-2 justify-center">
@@ -63,7 +63,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             </div>
             <h2 class="text-lg font-bold mb-4">Selecciona tu método de pago</h2>
             <div class="flex flex-col sm:flex-row gap-4">
-              <button type="button" id="btn-webpay" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg py-4 rounded-xl flex items-center justify-center w-full transition">
+              <button type="button" id="btn-webpay" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg py-4 rounded-xl flex items-center justify-center w-full transition" aria-busy="false">
                 <span id="text-webpay">Pagar con Webpay</span>
                 <span id="loading-webpay" class="ml-2 hidden"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg></span>
               </button>
@@ -71,7 +71,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           </div>
         </div>
       </div>
-    </main>
+    </div>
   </div>
   <script type="module">
     (() => {
@@ -96,11 +96,21 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
       function setLoading(btn, isLoading) {
         btn.disabled = isLoading;
+        btn.setAttribute('aria-busy', isLoading ? 'true' : 'false');
         document.getElementById('loading-webpay').classList.toggle('hidden', !isLoading);
         document.getElementById('text-webpay').classList.toggle('hidden', isLoading);
       }
 
       function mostrarError(mensaje) {
+        let errorDiv = document.getElementById('webpay-error');
+        if (!errorDiv) {
+          errorDiv = document.createElement('div');
+          errorDiv.id = 'webpay-error';
+          errorDiv.className = 'text-red-600 text-center my-4 font-semibold';
+          errorDiv.setAttribute('role', 'alert');
+          btnWebpay.parentNode.insertBefore(errorDiv, btnWebpay.nextSibling);
+        }
+        errorDiv.textContent = mensaje;
         alert(mensaje);
         console.error(mensaje);
       }

@@ -1,7 +1,7 @@
 ---
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import { getLangFromURL } from '../i18n/lang-utils.mjs';
- import '../styles/global.css';
+import '../styles/global.css';
 
 interface Props {
   title: string;
@@ -16,6 +16,9 @@ const t = await import(`../i18n/${detectedLang}.json`);
 if (lang !== detectedLang) {
   return Astro.redirect(`/${detectedLang}${Astro.url.pathname.replace(/^\/[a-z]{2}/, '')}`);
 }
+
+// Check if we're on the checkout page
+const isCheckoutPage = Astro.url.pathname.includes('/checkout');
 ---
 
 <!DOCTYPE html>
@@ -48,7 +51,7 @@ if (lang !== detectedLang) {
     <meta name="twitter:image" content={`${Astro.url.origin}/og-image.jpg`} />
   </head>
   <body>
-    <LanguageSwitcher />
+    {!isCheckoutPage && <LanguageSwitcher />}
     <nav class="bg-slate-900 px-4 py-3 flex items-center justify-between">
       <a href={lang === 'en' ? '/en/' : '/es/'} class="flex items-center gap-3">
         <img src="/img/logo-seo-20.webp" alt="Logo SEO20" class="h-10 w-auto" />
