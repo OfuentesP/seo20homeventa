@@ -111,154 +111,153 @@ const canonicalUrl = `${baseUrl}/solicitud`;
       </div>
     </div>
   </div>
-</BaseLayout>
-
-<script>
-function contieneCodigo(str) {
-  return /<[^>]+>|(script|onerror|onload|alert|function|\{|\}|\$\{|\`)/i.test(str);
-}
-
-function trimAllFields(obj) {
-  const out = {};
-  for (const k in obj) {
-    if (typeof obj[k] === 'string') out[k] = obj[k].trim();
-    else out[k] = obj[k];
-  }
-  return out;
-}
-
-function validarFormulario() {
-  let valido = true;
-  const form = {
-    nombre: document.getElementById('nombre').value,
-    sitio: document.getElementById('sitio').value,
-    empresa: document.getElementById('empresa').value,
-    cargo: document.getElementById('cargo').value,
-    email: document.getElementById('email').value
-  };
-
-  const trimmed = trimAllFields(form);
-
-  // Validar nombre
-  if (/https?:\/\//i.test(trimmed.nombre)) {
-    document.getElementById('error-nombre').textContent = 'El nombre no debe contener una URL.';
-    document.getElementById('error-nombre').classList.remove('hidden');
-    document.getElementById('nombre').setAttribute('aria-invalid', 'true');
-    valido = false;
-  } else if (!trimmed.nombre) {
-    document.getElementById('error-nombre').textContent = 'El nombre es obligatorio.';
-    document.getElementById('error-nombre').classList.remove('hidden');
-    document.getElementById('nombre').setAttribute('aria-invalid', 'true');
-    valido = false;
-  } else if (contieneCodigo(trimmed.nombre)) {
-    document.getElementById('error-nombre').textContent = 'No se permite código en el nombre.';
-    document.getElementById('error-nombre').classList.remove('hidden');
-    document.getElementById('nombre').setAttribute('aria-invalid', 'true');
-    valido = false;
-  } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s.'-]{3,60}$/.test(trimmed.nombre)) {
-    document.getElementById('error-nombre').textContent = 'El nombre debe tener entre 3 y 60 letras y solo caracteres válidos.';
-    document.getElementById('error-nombre').classList.remove('hidden');
-    document.getElementById('nombre').setAttribute('aria-invalid', 'true');
-    valido = false;
-  } else {
-    document.getElementById('error-nombre').classList.add('hidden');
-    document.getElementById('nombre').setAttribute('aria-invalid', 'false');
-  }
-
-  // Validar sitio web
-  try {
-    const url = new URL(trimmed.sitio);
-    if (!/^https?:/.test(url.protocol)) {
-      document.getElementById('error-sitio').textContent = 'El sitio web debe comenzar con http:// o https://';
-      document.getElementById('error-sitio').classList.remove('hidden');
-      document.getElementById('sitio').setAttribute('aria-invalid', 'true');
-      valido = false;
-    } else if (/localhost|127\.0\.0\.1|\d+\.\d+\.\d+\.\d+/.test(url.hostname)) {
-      document.getElementById('error-sitio').textContent = 'No se permiten sitios locales o IPs.';
-      document.getElementById('error-sitio').classList.remove('hidden');
-      document.getElementById('sitio').setAttribute('aria-invalid', 'true');
-      valido = false;
-    } else if (!/\./.test(url.hostname)) {
-      document.getElementById('error-sitio').textContent = 'El dominio debe contener al menos un punto.';
-      document.getElementById('error-sitio').classList.remove('hidden');
-      document.getElementById('sitio').setAttribute('aria-invalid', 'true');
-      valido = false;
-    } else if (contieneCodigo(trimmed.sitio)) {
-      document.getElementById('error-sitio').textContent = 'No se permite código en el sitio web.';
-      document.getElementById('error-sitio').classList.remove('hidden');
-      document.getElementById('sitio').setAttribute('aria-invalid', 'true');
-      valido = false;
-    } else {
-      document.getElementById('error-sitio').classList.add('hidden');
-      document.getElementById('sitio').setAttribute('aria-invalid', 'false');
+  <script>
+    function contieneCodigo(str) {
+      return /<[^>]+>|(script|onerror|onload|alert|function|\{|\}|\$\{|\`)/i.test(str);
     }
-  } catch {
-    document.getElementById('error-sitio').textContent = 'Ingresa una URL válida (ej: https://tusitio.com)';
-    document.getElementById('error-sitio').classList.remove('hidden');
-    document.getElementById('sitio').setAttribute('aria-invalid', 'true');
-    valido = false;
-  }
 
-  // Validar email
-  if (!/^\S+@\S+\.\S+$/.test(trimmed.email)) {
-    document.getElementById('error-email').textContent = 'Ingresa un correo electrónico válido.';
-    document.getElementById('error-email').classList.remove('hidden');
-    document.getElementById('email').setAttribute('aria-invalid', 'true');
-    valido = false;
-  } else if (trimmed.email.length > 100) {
-    document.getElementById('error-email').textContent = 'El correo no debe superar los 100 caracteres.';
-    document.getElementById('error-email').classList.remove('hidden');
-    document.getElementById('email').setAttribute('aria-invalid', 'true');
-    valido = false;
-  } else if (contieneCodigo(trimmed.email)) {
-    document.getElementById('error-email').textContent = 'No se permite código en el correo.';
-    document.getElementById('error-email').classList.remove('hidden');
-    document.getElementById('email').setAttribute('aria-invalid', 'true');
-    valido = false;
-  } else {
-    document.getElementById('error-email').classList.add('hidden');
-    document.getElementById('email').setAttribute('aria-invalid', 'false');
-  }
+    function trimAllFields(obj) {
+      const out = {};
+      for (const k in obj) {
+        if (typeof obj[k] === 'string') out[k] = obj[k].trim();
+        else out[k] = obj[k];
+      }
+      return out;
+    }
 
-  // Validar empresa (opcional)
-  if (trimmed.empresa && (trimmed.empresa.length > 60 || contieneCodigo(trimmed.empresa))) {
-    document.getElementById('error-empresa').textContent = 'Máx. 60 caracteres y sin código.';
-    document.getElementById('error-empresa').classList.remove('hidden');
-    document.getElementById('empresa').setAttribute('aria-invalid', 'true');
-    valido = false;
-  } else {
-    document.getElementById('error-empresa').classList.add('hidden');
-    document.getElementById('empresa').setAttribute('aria-invalid', 'false');
-  }
+    function validarFormulario() {
+      let valido = true;
+      const form = {
+        nombre: document.getElementById('nombre').value,
+        sitio: document.getElementById('sitio').value,
+        empresa: document.getElementById('empresa').value,
+        cargo: document.getElementById('cargo').value,
+        email: document.getElementById('email').value
+      };
 
-  // Validar cargo (opcional)
-  if (trimmed.cargo && (trimmed.cargo.length > 60 || contieneCodigo(trimmed.cargo))) {
-    document.getElementById('error-cargo').textContent = 'Máx. 60 caracteres y sin código.';
-    document.getElementById('error-cargo').classList.remove('hidden');
-    document.getElementById('cargo').setAttribute('aria-invalid', 'true');
-    valido = false;
-  } else {
-    document.getElementById('error-cargo').classList.add('hidden');
-    document.getElementById('cargo').setAttribute('aria-invalid', 'false');
-  }
+      const trimmed = trimAllFields(form);
 
-  return valido;
-}
+      // Validar nombre
+      if (/https?:\/\//i.test(trimmed.nombre)) {
+        document.getElementById('error-nombre').textContent = 'El nombre no debe contener una URL.';
+        document.getElementById('error-nombre').classList.remove('hidden');
+        document.getElementById('nombre').setAttribute('aria-invalid', 'true');
+        valido = false;
+      } else if (!trimmed.nombre) {
+        document.getElementById('error-nombre').textContent = 'El nombre es obligatorio.';
+        document.getElementById('error-nombre').classList.remove('hidden');
+        document.getElementById('nombre').setAttribute('aria-invalid', 'true');
+        valido = false;
+      } else if (contieneCodigo(trimmed.nombre)) {
+        document.getElementById('error-nombre').textContent = 'No se permite código en el nombre.';
+        document.getElementById('error-nombre').classList.remove('hidden');
+        document.getElementById('nombre').setAttribute('aria-invalid', 'true');
+        valido = false;
+      } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s.'-]{3,60}$/.test(trimmed.nombre)) {
+        document.getElementById('error-nombre').textContent = 'El nombre debe tener entre 3 y 60 letras y solo caracteres válidos.';
+        document.getElementById('error-nombre').classList.remove('hidden');
+        document.getElementById('nombre').setAttribute('aria-invalid', 'true');
+        valido = false;
+      } else {
+        document.getElementById('error-nombre').classList.add('hidden');
+        document.getElementById('nombre').setAttribute('aria-invalid', 'false');
+      }
 
-document.getElementById('formulario-seo').addEventListener('submit', (e) => {
-  e.preventDefault();
-  if (!validarFormulario()) return;
-  
-  const form = {
-    nombre: document.getElementById('nombre').value,
-    sitio: document.getElementById('sitio').value,
-    empresa: document.getElementById('empresa').value,
-    cargo: document.getElementById('cargo').value,
-    email: document.getElementById('email').value
-  };
+      // Validar sitio web
+      try {
+        const url = new URL(trimmed.sitio);
+        if (!/^https?:/.test(url.protocol)) {
+          document.getElementById('error-sitio').textContent = 'El sitio web debe comenzar con http:// o https://';
+          document.getElementById('error-sitio').classList.remove('hidden');
+          document.getElementById('sitio').setAttribute('aria-invalid', 'true');
+          valido = false;
+        } else if (/localhost|127\.0\.0\.1|\d+\.\d+\.\d+\.\d+/.test(url.hostname)) {
+          document.getElementById('error-sitio').textContent = 'No se permiten sitios locales o IPs.';
+          document.getElementById('error-sitio').classList.remove('hidden');
+          document.getElementById('sitio').setAttribute('aria-invalid', 'true');
+          valido = false;
+        } else if (!/\./.test(url.hostname)) {
+          document.getElementById('error-sitio').textContent = 'El dominio debe contener al menos un punto.';
+          document.getElementById('error-sitio').classList.remove('hidden');
+          document.getElementById('sitio').setAttribute('aria-invalid', 'true');
+          valido = false;
+        } else if (contieneCodigo(trimmed.sitio)) {
+          document.getElementById('error-sitio').textContent = 'No se permite código en el sitio web.';
+          document.getElementById('error-sitio').classList.remove('hidden');
+          document.getElementById('sitio').setAttribute('aria-invalid', 'true');
+          valido = false;
+        } else {
+          document.getElementById('error-sitio').classList.add('hidden');
+          document.getElementById('sitio').setAttribute('aria-invalid', 'false');
+        }
+      } catch {
+        document.getElementById('error-sitio').textContent = 'Ingresa una URL válida (ej: https://tusitio.com)';
+        document.getElementById('error-sitio').classList.remove('hidden');
+        document.getElementById('sitio').setAttribute('aria-invalid', 'true');
+        valido = false;
+      }
 
-  const trimmed = trimAllFields(form);
-  localStorage.setItem('formulario-seo', JSON.stringify(trimmed));
-  window.location.href = '/es/checkout';
-});
-</script> 
+      // Validar email
+      if (!/^\S+@\S+\.\S+$/.test(trimmed.email)) {
+        document.getElementById('error-email').textContent = 'Ingresa un correo electrónico válido.';
+        document.getElementById('error-email').classList.remove('hidden');
+        document.getElementById('email').setAttribute('aria-invalid', 'true');
+        valido = false;
+      } else if (trimmed.email.length > 100) {
+        document.getElementById('error-email').textContent = 'El correo no debe superar los 100 caracteres.';
+        document.getElementById('error-email').classList.remove('hidden');
+        document.getElementById('email').setAttribute('aria-invalid', 'true');
+        valido = false;
+      } else if (contieneCodigo(trimmed.email)) {
+        document.getElementById('error-email').textContent = 'No se permite código en el correo.';
+        document.getElementById('error-email').classList.remove('hidden');
+        document.getElementById('email').setAttribute('aria-invalid', 'true');
+        valido = false;
+      } else {
+        document.getElementById('error-email').classList.add('hidden');
+        document.getElementById('email').setAttribute('aria-invalid', 'false');
+      }
+
+      // Validar empresa (opcional)
+      if (trimmed.empresa && (trimmed.empresa.length > 60 || contieneCodigo(trimmed.empresa))) {
+        document.getElementById('error-empresa').textContent = 'Máx. 60 caracteres y sin código.';
+        document.getElementById('error-empresa').classList.remove('hidden');
+        document.getElementById('empresa').setAttribute('aria-invalid', 'true');
+        valido = false;
+      } else {
+        document.getElementById('error-empresa').classList.add('hidden');
+        document.getElementById('empresa').setAttribute('aria-invalid', 'false');
+      }
+
+      // Validar cargo (opcional)
+      if (trimmed.cargo && (trimmed.cargo.length > 60 || contieneCodigo(trimmed.cargo))) {
+        document.getElementById('error-cargo').textContent = 'Máx. 60 caracteres y sin código.';
+        document.getElementById('error-cargo').classList.remove('hidden');
+        document.getElementById('cargo').setAttribute('aria-invalid', 'true');
+        valido = false;
+      } else {
+        document.getElementById('error-cargo').classList.add('hidden');
+        document.getElementById('cargo').setAttribute('aria-invalid', 'false');
+      }
+
+      return valido;
+    }
+
+    document.getElementById('formulario-seo').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!validarFormulario()) return;
+      
+      const form = {
+        nombre: document.getElementById('nombre').value,
+        sitio: document.getElementById('sitio').value,
+        empresa: document.getElementById('empresa').value,
+        cargo: document.getElementById('cargo').value,
+        email: document.getElementById('email').value
+      };
+
+      const trimmed = trimAllFields(form);
+      localStorage.setItem('formulario-seo', JSON.stringify(trimmed));
+      window.location.href = '/es/checkout';
+    });
+  </script>
+</BaseLayout> 
