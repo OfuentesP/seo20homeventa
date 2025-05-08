@@ -63,9 +63,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             </div>
             <h2 class="text-lg font-bold mb-4">Selecciona tu método de pago</h2>
             <div class="flex flex-col sm:flex-row gap-4">
-              <button type="button" id="btn-flow" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-lg py-4 rounded-xl flex items-center justify-center w-full transition">
-                <span id="text-flow">Pagar con Flow</span>
-                <span id="loading-flow" class="ml-2 hidden"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg></span>
+              <button type="button" id="btn-webpay" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg py-4 rounded-xl flex items-center justify-center w-full transition">
+                <span id="text-webpay">Pagar con Webpay</span>
+                <span id="loading-webpay" class="ml-2 hidden"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg></span>
               </button>
             </div>
           </div>
@@ -95,7 +95,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       document.getElementById('resumen-email').textContent = datos.email || '';
       document.getElementById('resumen-sitio').textContent = datos.sitio || '';
 
-      const btnFlow = document.getElementById('btn-flow');
+      const btnWebpay = document.getElementById('btn-webpay');
       let loading = false;
 
       function validarDatos() {
@@ -104,8 +104,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
       function setLoading(btn, isLoading) {
         btn.disabled = isLoading;
-        document.getElementById('loading-flow').classList.toggle('hidden', !isLoading);
-        document.getElementById('text-flow').classList.toggle('hidden', isLoading);
+        document.getElementById('loading-webpay').classList.toggle('hidden', !isLoading);
+        document.getElementById('text-webpay').classList.toggle('hidden', isLoading);
       }
 
       function mostrarError(mensaje) {
@@ -113,7 +113,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         console.error(mensaje);
       }
 
-      btnFlow.addEventListener('click', async () => {
+      btnWebpay.addEventListener('click', async () => {
         if (loading) return;
         if (!validarDatos()) {
           mostrarError('Faltan datos del formulario. Vuelve a la página anterior.');
@@ -121,9 +121,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           return;
         }
         loading = true;
-        setLoading(btnFlow, true);
+        setLoading(btnWebpay, true);
         try {
-          const res = await fetch('/api/flow/create', {
+          const res = await fetch('/api/webpay/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(datos)
@@ -132,21 +132,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             throw new Error(`Error HTTP: ${res.status}`);
           }
           const data = await res.json();
-          if (data.orderId) {
-            localStorage.setItem('flow-order-id', data.orderId);
+          if (!data.url || !data.token) {
+            throw new Error('Datos de pago inválidos recibidos.');
           }
-          if (data.url && data.token) {
-            window.location.href = `${data.url}?token=${data.token}`;
-          } else if (data.url) {
-            window.location.href = data.url;
-          } else {
-            throw new Error('Respuesta inválida del servidor');
+          if (data.buyOrder) {
+            localStorage.setItem('buyOrder', data.buyOrder);
           }
+          window.location.href = `${data.url}?token_ws=${data.token}`;
         } catch (err) {
-          mostrarError('Error al conectar con Flow. Por favor, intenta nuevamente.');
+          mostrarError('Error al conectar con Webpay. Por favor, intenta nuevamente.');
         } finally {
           loading = false;
-          setLoading(btnFlow, false);
+          setLoading(btnWebpay, false);
         }
       });
     })();
