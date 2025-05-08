@@ -8,23 +8,9 @@ const lang = 'en';
 
 <BaseLayout title={t_en.confirmation.title} lang={lang}>
   <head slot="head">
-    <meta name="description" content={t_en.confirmation.metaDescription} />
-    <meta name="robots" content="noindex,follow" />
-    <meta property="og:title" content={t_en.confirmation.title} />
-    <meta property="og:description" content={t_en.confirmation.metaDescription} />
-    <meta property="og:image" content="https://seo20.dev/images/og-auditoria-seo-10.jpg" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={`https://seo20.dev/${lang}/confirmation`} />
-    <meta property="og:site_name" content="SEO20.dev" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={t_en.confirmation.title} />
-    <meta name="twitter:description" content={t_en.confirmation.metaDescription} />
-    <meta name="twitter:image" content="https://seo20.dev/images/twitter-auditoria-seo-10.jpg" />
-    <link rel="canonical" href={`/${lang}/confirmation`} />
-    <link rel="alternate" hreflang="es" href="/es/confirmacion" />
-    <link rel="alternate" hreflang="en" href="/en/confirmation" />
+    
   </head>
-  <div class="bg-slate-50 min-h-screen">
-    <PaymentConfirmation client:load lang="en" />
+  <div class="bg-slate-50 min-h-screen" aria-live="polite">
+    <PaymentConfirmation client:load />
   </div>
 </BaseLayout> 

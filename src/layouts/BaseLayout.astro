@@ -27,28 +27,11 @@ const isCheckoutPage = Astro.url.pathname.includes('/checkout');
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
-    <slot name="head" />
-    
-    <!-- Preconnect to payment providers -->
     <link rel="preconnect" href="https://api.flow.cl" />
     <link rel="preconnect" href="https://webpay3g.transbank.cl" />
-    
-    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    
-    <!-- Open Graph / Social Media -->
-    <meta property="og:title" content={title} />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url.href} />
-    <meta property="og:image" content={`${Astro.url.origin}/og-image.jpg`} />
-    <meta property="og:locale" content={lang === 'es' ? 'es_ES' : 'en_US'} />
-    <meta property="og:locale:alternate" content={lang === 'es' ? 'en_US' : 'es_ES'} />
-    
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:image" content={`${Astro.url.origin}/og-image.jpg`} />
+    <slot name="head" />
   </head>
   <body>
     {!isCheckoutPage && <LanguageSwitcher />}
@@ -64,7 +47,7 @@ const isCheckoutPage = Astro.url.pathname.includes('/checkout');
       <slot />
     </main>
     <footer class="bg-gray-100 text-center text-sm text-gray-600 min-h-[160px] h-[160px] flex flex-col justify-center pt-12">
-      <p>&copy; 2025 SEO20.dev — Todos los derechos reservados.</p>
+      <p>&copy; {new Date().getFullYear()} SEO20.dev — Todos los derechos reservados.</p>
       <nav class="mt-2 space-x-4">
         <a href={lang === 'en' ? '/en/politica-privacidad' : '/es/politica-privacidad'} class="hover:text-emerald-600">Política de Privacidad</a>
         <a href={lang === 'en' ? '/en/terminos-servicio' : '/es/terminos-servicio'} class="hover:text-emerald-600">Términos de Servicio</a>
@@ -72,4 +55,4 @@ const isCheckoutPage = Astro.url.pathname.includes('/checkout');
       <p class="mt-2">Contacto: <a href="mailto:hola@seo20.dev" class="text-emerald-600 hover:underline">hola@seo20.dev</a></p>
     </footer>
   </body>
-</html> 
+</html>
